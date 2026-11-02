@@ -103,7 +103,7 @@
     const stats = [
       ['archive','전체 경험',es.length,'개','var(--accent-light)','var(--accent)'],
       ['timeline','진행 중',es.filter(e => e.ongoing).length,'개','var(--accent-light)','var(--accent)'],
-      ['star','포트폴리오',es.filter(e => e.featured).length,'개','#fff7ed','#b45309']
+      ['star','포트폴리오',es.filter(e => e.featured).length,'개','var(--selection-light)','var(--selection)']
     ];
     $('#stats').innerHTML = stats.map(([i,l,n,u,b,c]) => `<div class="stat" style="--stat-bg:${b};--stat-color:${c}"><span class="stat-icon">${icon(i)}</span><span class="stat-copy"><span class="stat-label">${l}</span><strong>${n}<small>${u}</small></strong></span></div>`).join('');
   }
