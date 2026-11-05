@@ -38,7 +38,7 @@
         <div class="section-heading"><h2>자소서 초안</h2></div>
         <form id="draft-form" class="draft-panel">
           <label class="field">지원 문항<textarea id="draft-question" maxlength="3000" rows="4" required placeholder="예: 협업하며 어려움을 해결한 경험을 알려주세요."></textarea></label>
-          <fieldset class="draft-experiences"><legend>참고할 경험 선택</legend><p>선택한 경험 중 문항에 맞는 경험을 AI가 골라요. 최대 30개</p><div id="draft-choices"></div></fieldset>
+          <fieldset class="draft-experiences"><legend>참고할 경험 선택</legend><p>선택한 경험 중 문항에 맞는 경험을 AI가 골라요. 최대 30개</p><label class="draft-select-all"><input id="draft-select-all" type="checkbox"> 전체 선택 (최대 30개)</label><div id="draft-choices"></div></fieldset>
           <p class="draft-notice">초안 만들기를 누르면 지원 문항과 선택한 경험의 내용이 Google Gemini로 전송돼요.</p>
           <button class="button primary" type="submit">관련 경험 찾고 초안 만들기</button><p id="draft-error" class="form-error" role="alert"></p>
         </form>

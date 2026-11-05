@@ -428,6 +428,8 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 .draft-experiences { border: 0; padding: 0; margin: 22px 0; }
 .draft-experiences legend, .draft-panel h3 { font-size: 15px; font-weight: 700; }
 .draft-experiences p, .draft-notice { color: var(--text); font-size: 12px; line-height: 1.7; }
+.draft-select-all { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: var(--text); font-size: 12px; }
+.draft-select-all input { accent-color: var(--accent); }
 #draft-choices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; max-height: 340px; overflow: auto; }
 .draft-choice { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .draft-choice input { accent-color: var(--accent); margin-top: 4px; }
