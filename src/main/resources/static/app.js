@@ -182,16 +182,17 @@
     $('#profile-initial').textContent = [...state.profile.name][0] || '나';
   }
   function navigate(page) {
-    if (!['archive','timeline','portfolio'].includes(page)) page = 'archive';
+    if (!['archive','timeline','portfolio','draft'].includes(page)) page = 'archive';
     state.page = page;
-    ['archive','timeline','portfolio'].forEach(p => $(`#${p}-page`).hidden = p !== page);
+    ['archive','timeline','portfolio','draft'].forEach(p => $(`#${p}-page`).hidden = p !== page);
     $('#archive-intro').hidden = page !== 'archive';
-    $('#stats').hidden = page === 'portfolio';
-    $('#breadcrumb-page').textContent = {archive:'나의 경험',timeline:'타임라인',portfolio:'포트폴리오'}[page];
+    $('#stats').hidden = page === 'portfolio' || page === 'draft';
+    $('#breadcrumb-page').textContent = {archive:'나의 경험',timeline:'타임라인',portfolio:'포트폴리오',draft:'자소서 초안'}[page];
     document.querySelectorAll('.primary-nav [data-page]').forEach(b => { b.classList.toggle('active', b.dataset.page===page); if (b.dataset.page === page) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
     $('#sidebar').classList.remove('open');
     if (location.hash !== `#${page}`) history.replaceState(null,'',`#${page}`);
     renderFilters();
+    if (page === 'draft') renderDraftChoices();
     updateTimelineNavigation();
     window.scrollTo({top:0,behavior:'instant'});
   }
@@ -268,6 +269,24 @@
     const retry = event.target.closest('[data-retry]'); if(retry) load();
     if (!event.target.closest('#sidebar') && !event.target.closest('#menu-button')) $('#sidebar').classList.remove('open');
   });
+  function renderDraftChoices() {
+    const checked = new Set([...document.querySelectorAll('#draft-choices input:checked')].map(el => el.value));
+    $('#draft-choices').innerHTML = state.experiences.length ? state.experiences.map(e => `<label class="draft-choice"><input type="checkbox" value="${e.id}" ${checked.has(String(e.id))?'checked':''}><span><strong>${escape(e.title)}</strong><small>${escape(categoryLabel(e))} · ${escape(period(e))}</small></span></label>`).join('') : '<p>먼저 경험을 추가해주세요.</p>';
+  }
+  $('#draft-form').addEventListener('submit', async event => {
+    event.preventDefault(); const button=event.currentTarget.querySelector('[type=submit]');
+    const ids=[...document.querySelectorAll('#draft-choices input:checked')].map(el=>Number(el.value));
+    $('#draft-error').textContent=''; $('#draft-result').hidden=true;
+    if (!ids.length || ids.length > 30) { $('#draft-error').textContent='경험을 1개 이상 30개 이하로 선택해주세요.'; return; }
+    button.disabled=true; button.textContent='초안을 만들고 있어요…';
+    try {
+      const result=await api('/drafts',{method:'POST',body:JSON.stringify({question:$('#draft-question').value.trim(),experienceIds:ids})});
+      $('#draft-recommendations').innerHTML=result.experiences.length ? result.experiences.map(e=>`<div class="draft-recommendation"><strong>${escape(e.title)}</strong><p>${escape(e.reason)}</p></div>`).join('') : '<p>관련 경험을 찾지 못했어요.</p>';
+      $('#draft-text').value=result.draft; $('#draft-result').hidden=false;
+    } catch(e) { $('#draft-error').textContent=e.message; }
+    finally {button.disabled=false;button.textContent='관련 경험 찾고 초안 만들기';}
+  });
+  $('#draft-copy').addEventListener('click', async()=>{try{await navigator.clipboard.writeText($('#draft-text').value);toast('초안을 복사했어요.');}catch{toast('초안을 선택해 복사해주세요.',true);}});
   $('#search').addEventListener('input', event=>{state.query=event.target.value.trim();renderExperiences();});
   $('#sort').addEventListener('change',event=>{state.sort=event.target.value;renderExperiences();});
   $('#timeline-type').addEventListener('change',()=>{renderTimeline();$('#timeline-list').scrollTo({left:0,behavior:'instant'});updateTimelineNavigation();});
