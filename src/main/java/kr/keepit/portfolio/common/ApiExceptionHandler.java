@@ -1,4 +1,4 @@
-package kr.moa.portfolio.common;
+package kr.keepit.portfolio.common;
 
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;

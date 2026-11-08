@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="keep it · 전체 테스트" type="JUnit" factoryName="JUnit">
-    <module name="moa-portfolio" />
+    <module name="keep-it" />
     <option name="TEST_OBJECT" value="class" />
-    <option name="MAIN_CLASS_NAME" value="kr.moa.portfolio.PortfolioApiTests" />
-    <option name="PACKAGE_NAME" value="kr.moa.portfolio" />
+    <option name="MAIN_CLASS_NAME" value="kr.keepit.portfolio.PortfolioApiTests" />
+    <option name="PACKAGE_NAME" value="kr.keepit.portfolio" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <method v="2"><option name="Make" enabled="true" /></method>
   </configuration>

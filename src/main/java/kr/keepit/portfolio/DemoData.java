@@ -1,7 +1,7 @@
-package kr.moa.portfolio;
+package kr.keepit.portfolio;
 
-import kr.moa.portfolio.experience.*;
-import kr.moa.portfolio.profile.*;
+import kr.keepit.portfolio.experience.*;
+import kr.keepit.portfolio.profile.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

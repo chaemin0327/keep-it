@@ -1,4 +1,4 @@
-package kr.moa.portfolio;
+package kr.keepit.portfolio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

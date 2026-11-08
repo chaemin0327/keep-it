@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="keep it · 킵잇 실행" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="kr.moa.portfolio.MoaPortfolioApplication" />
-    <module name="moa-portfolio" />
+    <option name="MAIN_CLASS_NAME" value="kr.keepit.portfolio.KeepItApplication" />
+    <module name="keep-it" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <method v="2"><option name="Make" enabled="true" /></method>
   </configuration>
