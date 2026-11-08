@@ -444,3 +444,9 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 .draft-mode legend { font-size:15px; font-weight:700; margin-bottom:8px; }
 .draft-mode label { display:flex; align-items:center; gap:7px; cursor:pointer; }
 .draft-mode input { accent-color:var(--accent); }
+
+.entry-extra { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 14px; }
+.entry-extra summary { color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 0; }
+.entry-extra summary span { color: var(--muted); font-weight: 400; margin-left: 5px; }
+.entry-extra .form-grid { margin-top: 16px; }
+.featured-check { margin-top: 20px; }

@@ -23,6 +23,8 @@ public class Experience {
     @Column(length = 200) String role;
     @Column(length = 10000) String description;
     @Column(length = 1000) String outcome;
+    @Column(length = 5000) String challenge;
+    @Column(length = 160) String credentialNumber;
     @Column(length = 300) String tags;
     @Column(length = 1000) String link;
     boolean featured;
@@ -49,6 +51,8 @@ public class Experience {
         endDate = r.ongoing() ? null : r.endDate(); ongoing = r.ongoing();
         participants = clean(r.participants()); role = clean(r.role());
         description = clean(r.description()); outcome = clean(r.outcome());
+        if (r.challenge() != null) challenge = clean(r.challenge());
+        if (r.credentialNumber() != null) credentialNumber = clean(r.credentialNumber());
         tags = clean(r.tags()); featured = r.featured();
         var requestedLinks = r.links() != null ? r.links()
                 : clean(r.link()).isEmpty() ? List.<String>of() : List.of(r.link());

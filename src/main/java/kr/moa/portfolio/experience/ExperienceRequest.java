@@ -23,5 +23,7 @@ public record ExperienceRequest(
         @Size(max = 40) String placement,
         @Size(max = 100) String awardName,
         @Size(max = 10, message = "링크는 최대 10개까지 추가할 수 있어요.")
-        List<@NotBlank @Size(max = 1000) String> links
+        List<@NotBlank @Size(max = 1000) String> links,
+        @Size(max = 5000) String challenge,
+        @Size(max = 160) String credentialNumber
 ) {}
