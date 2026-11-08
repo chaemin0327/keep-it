@@ -28,7 +28,7 @@ class DraftControllerTest {
         var result = controller.create(new DraftController.DraftRequest("협업 경험",List.of(1L)));
         assertThat(result.draft()).isEqualTo("협업했습니다.");
         assertThat(result.experiences()).extracting(DraftController.Recommendation::title).containsExactly("테스트 경험");
-        var forged = mapper.writeValueAsString(Map.of("experiences",List.of(Map.of("id",2,"reason","허위")),"draft","초안"));
+        var forged = mapper.writeValueAsString(Map.of("experiences",List.of(Map.of("id",1,"reason","첫째"),Map.of("id",1,"reason","둘째"),Map.of("id",1,"reason","셋째"),Map.of("id",2,"reason","허위")),"draft","초안"));
         when(response.body()).thenReturn(mapper.writeValueAsString(Map.of("candidates",List.of(Map.of("content",Map.of("parts",List.of(Map.of("text",forged))))))));
         assertThatThrownBy(() -> controller.create(new DraftController.DraftRequest("협업 경험",List.of(1L)))).isInstanceOf(ResponseStatusException.class);
     }

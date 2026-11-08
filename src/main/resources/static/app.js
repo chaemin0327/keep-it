@@ -271,11 +271,12 @@
   });
   function renderDraftChoices() {
     const checked = new Set([...document.querySelectorAll('#draft-choices input:checked')].map(el => el.value));
-    $('#draft-select-all').checked = state.experiences.length > 0 && checked.size === state.experiences.length;
+    const firstIds = state.experiences.slice(0,30).map(e => String(e.id));
+    $('#draft-select-all').checked = firstIds.length > 0 && firstIds.every(id => checked.has(id));
     $('#draft-choices').innerHTML = state.experiences.length ? state.experiences.map(e => `<label class="draft-choice"><input type="checkbox" value="${e.id}" ${checked.has(String(e.id))?'checked':''}><span><strong>${escape(e.title)}</strong><small>${escape(categoryLabel(e))} · ${escape(period(e))}</small></span></label>`).join('') : '<p>먼저 경험을 추가해주세요.</p>';
   }
   $('#draft-select-all').addEventListener('change',event=>{document.querySelectorAll('#draft-choices input').forEach((el,i)=>{el.checked=event.target.checked && i<30;});});
-  $('#draft-choices').addEventListener('change',()=>{const boxes=[...document.querySelectorAll('#draft-choices input')];$('#draft-select-all').checked=boxes.length>0 && boxes.every(el=>el.checked);});
+  $('#draft-choices').addEventListener('change',()=>{const boxes=[...document.querySelectorAll('#draft-choices input')];$('#draft-select-all').checked=boxes.length>0 && boxes.slice(0,30).every(el=>el.checked);});
   $('#draft-form').addEventListener('submit', async event => {
     event.preventDefault(); const button=event.currentTarget.querySelector('[type=submit]');
     const ids=[...document.querySelectorAll('#draft-choices input:checked')].map(el=>Number(el.value));

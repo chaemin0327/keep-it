@@ -65,8 +65,7 @@ public class DraftController {
                 if (!item.path("id").canConvertToLong() || !item.path("reason").isTextual()) throw new IllegalArgumentException();
                 long id = item.path("id").asLong();
                 var match = selected.stream().filter(e -> e.id().equals(id)).findFirst().orElseThrow(IllegalArgumentException::new);
-                if (seen.add(id)) chosen.add(new Recommendation(id,match.title(),item.path("reason").asText()));
-                if (chosen.size() == 3) break;
+                if (seen.add(id) && chosen.size() < 3) chosen.add(new Recommendation(id,match.title(),item.path("reason").asText()));
             }
             return new DraftResponse(chosen, output.path("draft").asText());
         } catch (ResponseStatusException e) { throw e; }
