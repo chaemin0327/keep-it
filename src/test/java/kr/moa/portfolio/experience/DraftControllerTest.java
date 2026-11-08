@@ -15,7 +15,7 @@ class DraftControllerTest {
         var repo = mock(ExperienceRepository.class);
         var client = mock(HttpClient.class);
         @SuppressWarnings("unchecked") HttpResponse<String> response = mock(HttpResponse.class);
-        var request = new ExperienceRequest(ExperienceType.PROJECT,"테스트 경험","기관","", LocalDate.of(2025,1,1),null,false,"","역할","협업 기록","","", "",false,"","","",List.of());
+        var request = new ExperienceRequest(ExperienceType.PROJECT,"테스트 경험","기관","", LocalDate.of(2025,1,1),null,false,"","역할","협업 기록","","", "",false,"","","",List.of(),"","");
         var experience = new Experience(request,false);
         experience.id=1L;
         when(repo.findById(1L)).thenReturn(Optional.of(experience));

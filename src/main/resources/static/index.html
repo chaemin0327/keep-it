@@ -51,7 +51,7 @@
       </section>
       <section id="portfolio-page" class="page-section" hidden>
         <div class="section-heading"><div><h2>나의 포트폴리오</h2></div><button class="button primary" id="print-button"><i data-icon="download"></i>인쇄 / PDF 저장</button></div>
-        <div class="portfolio-help"><i data-icon="star"></i><span>별표로 선택한 경험</span><button class="text-link" data-page="archive">경험 선택 →</button></div>
+        <div class="portfolio-help"><i data-icon="star"></i><span>별표를 켠 경험이 여기에 모여요</span><button class="text-link" data-page="archive">경험 선택 →</button></div>
         <article class="portfolio-sheet" id="portfolio-sheet"></article>
       </section>
     </main>
@@ -59,7 +59,28 @@
   <dialog id="experience-dialog" class="modal form-modal" aria-labelledby="experience-dialog-title">
     <form id="experience-form"><div class="modal-header"><div><h2 id="experience-dialog-title">경험 추가</h2></div><button type="button" class="icon-button" data-close aria-label="닫기"><i data-icon="close"></i></button></div>
       <div class="modal-body"><fieldset class="type-fieldset"><legend>어떤 경험인가요? <span class="required">*</span></legend><div class="type-picker" id="type-picker"></div></fieldset>
-        <div class="form-grid"><label class="field full" id="custom-category-field" hidden>분류 이름 *<input name="customCategory" maxlength="30" list="custom-category-options" placeholder="예: 봉사활동, 멘토링, 창업" disabled><datalist id="custom-category-options"></datalist><small>기존 분류를 선택하거나 새로 입력하세요.</small></label><label class="field full">제목 <span class="required">*</span><input name="title" required maxlength="120" placeholder="어떤 경험이었나요?"></label><label class="field"><span id="organization-label">기관 / 소속</span><input name="organization" maxlength="160" placeholder="학교, 회사, 주최 기관 등"></label><label class="field">장소<input name="location" maxlength="160" placeholder="어디서 함께했나요?"></label><label class="field"><span id="start-label">시작일 *</span><input name="startDate" type="date" required></label><label class="field"><span id="end-label">종료일</span><input name="endDate" type="date"></label><label class="check-field full" id="ongoing-field"><input type="checkbox" name="ongoing"><span id="ongoing-label">아직 진행 중인 경험이에요</span></label><label class="field" data-field="participants">함께한 사람<input name="participants" maxlength="300" placeholder="팀명이나 함께한 사람을 남겨보세요"></label><label class="field" data-field="role"><span id="role-label">나의 역할</span><input name="role" maxlength="200" placeholder="내가 맡았던 일을 적어주세요"></label><label class="field full">경험 내용<textarea name="description" rows="5" maxlength="10000" placeholder="무엇을 했고, 어떤 점을 배웠나요?&#10;내가 한 일과 느낀 점을 편하게 남겨보세요."></textarea></label><fieldset id="competition-results" class="result-fieldset full" hidden><legend>최종 결과</legend><div class="form-grid"><label class="field">최종 순위 / 진출 단계<input name="placement" maxlength="40" placeholder="예: 3위, 본선 진출, 상위 10%" disabled></label><label class="field">상 이름<input name="awardName" maxlength="100" placeholder="예: 대상, 최우수상, 우수상" disabled></label></div><small>결과가 없으면 비워두세요.</small></fieldset><label class="field full"><span id="outcome-label">결과 / 성과</span><input name="outcome" maxlength="1000" placeholder="수상 여부, 완성한 결과물, 배운 점 등"></label><label class="field full"><span id="tags-label">태그 / 사용 기술</span><input name="tags" maxlength="300" placeholder="Java, 협업, 기획처럼 쉼표로 구분해주세요"></label><fieldset class="links-fieldset full"><legend>관련 링크</legend><div id="experience-links"></div><button class="button secondary" id="add-link" type="button">＋ 링크 추가</button><small>최대 10개</small></fieldset><label class="check-field full featured-check"><input type="checkbox" name="featured" checked><span><strong>포트폴리오에 담기</strong><small>포트폴리오에 표시</small></span><i data-icon="star"></i></label></div><p class="form-error" id="form-error" role="alert"></p>
+        <div class="form-grid" id="entry-basic">
+          <label class="field full" id="custom-category-field" hidden>분류 이름 *<input name="customCategory" maxlength="30" list="custom-category-options" placeholder="예: 봉사활동, 멘토링, 창업" disabled><datalist id="custom-category-options"></datalist><small>기존 분류를 선택하거나 새로 입력하세요.</small></label>
+          <label class="field full" id="entry-title"><span id="title-label">제목</span> <span class="required">*</span><input name="title" required maxlength="120" placeholder="어떤 경험이었나요?"></label>
+          <label class="field" id="entry-organization"><span id="organization-label">기관 / 소속</span><input name="organization" maxlength="160" placeholder="학교, 회사, 주최 기관 등"></label>
+          <label class="field" id="entry-start"><span id="start-label">시작일 *</span><input name="startDate" type="date" required></label>
+          <label class="field" id="entry-end"><span id="end-label">종료일</span><input name="endDate" type="date"></label>
+          <label class="check-field full" id="ongoing-field"><input type="checkbox" name="ongoing"><span id="ongoing-label">아직 진행 중인 경험이에요</span></label>
+          <label class="field" data-field="role"><span id="role-label">나의 역할</span><input name="role" maxlength="200" placeholder="내가 맡았던 일을 적어주세요"></label>
+          <label class="field full" id="entry-description"><span id="description-label">경험 내용</span><textarea name="description" rows="4" maxlength="10000" placeholder="무엇을 했고, 어떤 점을 배웠나요?"></textarea></label>
+          <fieldset id="competition-results" class="result-fieldset full" hidden><legend>최종 결과</legend><label class="field">최종 순위 / 진출 단계<input name="placement" maxlength="40" placeholder="예: 3위, 본선 진출, 상위 10%" disabled></label><small>결과가 없으면 비워두세요.</small></fieldset>
+        </div>
+        <details class="entry-extra" id="entry-extra"><summary>자세한 정보 더하기 <span>선택 입력</span></summary><div class="form-grid" id="entry-extra-fields">
+          <label class="field" id="entry-location">장소<input name="location" maxlength="160" placeholder="어디서 함께했나요?"></label>
+          <label class="field" data-field="participants">함께한 사람<input name="participants" maxlength="300" placeholder="팀명이나 함께한 사람을 남겨보세요"></label>
+          <label class="field full" id="entry-challenge">어려움과 해결<textarea name="challenge" rows="3" maxlength="5000" placeholder="어떤 문제를 어떻게 해결했나요?"></textarea></label>
+          <label class="field" id="entry-award">상 이름<input name="awardName" maxlength="100" placeholder="예: 대상, 최우수상, 우수상" disabled></label>
+          <label class="field" id="entry-credential">자격번호<input name="credentialNumber" maxlength="160" placeholder="필요하면 입력해주세요"></label>
+          <label class="field full" id="entry-outcome"><span id="outcome-label">결과 / 성과</span><input name="outcome" maxlength="1000" placeholder="완성한 결과물, 배운 점 등"></label>
+          <label class="field full" id="entry-tags"><span id="tags-label">태그 / 사용 기술</span><input name="tags" maxlength="300" placeholder="Java, 협업, 기획처럼 쉼표로 구분해주세요"></label>
+          <fieldset class="links-fieldset full" id="entry-links"><legend>관련 링크</legend><div id="experience-links"></div><button class="button secondary" id="add-link" type="button">＋ 링크 추가</button><small>최대 10개</small></fieldset>
+        </div></details>
+        <label class="check-field featured-check"><input type="checkbox" name="featured" checked><span><strong>포트폴리오에 담기</strong><small>별표를 켠 경험이 포트폴리오에 모여요</small></span><i data-icon="star"></i></label><p class="form-error" id="form-error" role="alert"></p>
       </div><div class="modal-footer"><span><span class="required">*</span> 필수 항목</span><div><button type="button" class="button secondary" data-close>취소</button><button type="submit" class="button primary" id="save-experience">저장 <i data-icon="arrowRight"></i></button></div></div>
     </form>
   </dialog>

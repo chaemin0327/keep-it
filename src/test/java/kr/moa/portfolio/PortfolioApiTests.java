@@ -68,6 +68,22 @@ class PortfolioApiTests {
                 .andExpect(jsonPath("$.message").value("Gemini API 키가 설정되지 않았어요. 서버 설정을 확인해주세요."));
     }
 
+    @Test void optionalDetailsAreStoredAndPreservedForOlderClients() throws Exception {
+        var data = experience();
+        data.put("challenge", "일정 충돌을 조율했습니다");
+        data.put("credentialNumber", "자격번호-1");
+        var location = create(data);
+        mvc.perform(get(location)).andExpect(jsonPath("$.challenge").value("일정 충돌을 조율했습니다"))
+                .andExpect(jsonPath("$.credentialNumber").value("자격번호-1"));
+        data.remove("challenge"); data.remove("credentialNumber"); data.put("title", "제목 수정");
+        mvc.perform(put(location).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.challenge").value("일정 충돌을 조율했습니다"))
+                .andExpect(jsonPath("$.credentialNumber").value("자격번호-1"));
+        data.put("challenge", ""); data.put("credentialNumber", "");
+        mvc.perform(put(location).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data)))
+                .andExpect(jsonPath("$.challenge").value("")).andExpect(jsonPath("$.credentialNumber").value(""));
+    }
+
     @Test void createReadUpdateDelete() throws Exception {
         var data = experience();
         var location = create(data);

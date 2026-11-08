@@ -103,7 +103,7 @@
     const stats = [
       ['archive','전체 경험',es.length,'개','var(--accent-light)','var(--accent)'],
       ['timeline','진행 중',es.filter(e => e.ongoing).length,'개','var(--accent-light)','var(--accent)'],
-      ['star','포트폴리오',es.filter(e => e.featured).length,'개','#fff7ed','#b45309']
+      ['star','포트폴리오에 담은 경험',es.filter(e => e.featured).length,'개','#fff7ed','#b45309']
     ];
     $('#stats').innerHTML = stats.map(([i,l,n,u,b,c]) => `<div class="stat" style="--stat-bg:${b};--stat-color:${c}"><span class="stat-icon">${icon(i)}</span><span class="stat-copy"><span class="stat-label">${l}</span><strong>${n}<small>${u}</small></strong></span></div>`).join('');
   }
@@ -174,7 +174,7 @@
   }
   function renderPortfolio() {
     const p = state.profile, list = state.experiences.filter(e => e.featured).sort((a,b) => b.startDate.localeCompare(a.startDate) || b.id-a.id);
-    $('#portfolio-sheet').innerHTML = `<header class="portfolio-header"><h1>${escape(p.name)}</h1><p class="portfolio-headline">${escape(p.headline)}</p>${p.bio?`<p class="portfolio-bio">${escape(p.bio)}</p>`:''}${p.email?`<a class="portfolio-email" href="mailto:${escape(p.email)}">${escape(p.email)}</a>`:''}</header><h2 class="portfolio-section-title">주요 경험 <span>· ${list.length}</span></h2>${list.length ? list.map(e => `<section class="portfolio-item"><div class="portfolio-date">${escape(period(e))}</div><div>${badge(e)}<h3>${escape(e.title)}</h3><p class="item-meta">${escape([e.organization,e.location,e.role].filter(Boolean).join(' · '))}</p>${e.participants?`<p class="item-meta">함께한 사람 · ${escape(e.participants)}</p>`:''}${e.description?`<p>${escape(e.description)}</p>`:''}${resultHtml(e)}${e.outcome?`<p class="item-outcome">${escape(e.outcome)}</p>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksHtml(e)}</div></section>`).join('') : '<div class="empty-state"><h3>아직 선택한 경험이 없어요</h3><p>카드의 별표를 눌러 추가하세요.</p></div>'}<footer class="portfolio-end"><span>keep it<img class="portfolio-brand-mark" src="/brand-mark.svg" alt="" width="20" height="20"></span></footer>`;
+    $('#portfolio-sheet').innerHTML = `<header class="portfolio-header"><h1>${escape(p.name)}</h1><p class="portfolio-headline">${escape(p.headline)}</p>${p.bio?`<p class="portfolio-bio">${escape(p.bio)}</p>`:''}${p.email?`<a class="portfolio-email" href="mailto:${escape(p.email)}">${escape(p.email)}</a>`:''}</header><h2 class="portfolio-section-title">주요 경험 <span>· ${list.length}</span></h2>${list.length ? list.map(e => `<section class="portfolio-item"><div class="portfolio-date">${escape(period(e))}</div><div>${badge(e)}<h3>${escape(e.title)}</h3><p class="item-meta">${escape([e.organization,e.location,e.role].filter(Boolean).join(' · '))}</p>${e.participants?`<p class="item-meta">함께한 사람 · ${escape(e.participants)}</p>`:''}${e.description?`<p>${escape(e.description)}</p>`:''}${e.challenge?`<p><strong>어려움과 해결</strong> · ${escape(e.challenge)}</p>`:''}${resultHtml(e)}${e.outcome?`<p class="item-outcome">${escape(e.outcome)}</p>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksHtml(e)}</div></section>`).join('') : '<div class="empty-state"><h3>아직 선택한 경험이 없어요</h3><p>카드의 별표를 눌러 추가하세요.</p></div>'}<footer class="portfolio-end"><span>keep it<img class="portfolio-brand-mark" src="/brand-mark.svg" alt="" width="20" height="20"></span></footer>`;
   }
   function render() {
     renderStats(); renderFilters(); renderExperiences(); renderTimeline(); renderPortfolio();
@@ -201,6 +201,18 @@
     const single = ['CERTIFICATE','AWARD'].includes(type), certificate = type === 'CERTIFICATE', paper = type === 'PAPER';
     const custom = type === 'CUSTOM', work = type === 'WORK', competition = ['COMPETITION','AWARD'].includes(type);
     $('#competition-results').hidden = !competition;
+    $('#entry-award').hidden = !competition;
+    $('#entry-credential').hidden = !certificate;
+    $('#entry-challenge').hidden = certificate;
+    $('#title-label').textContent = ({PROJECT:'프로젝트명',COMPETITION:'공모전명',CERTIFICATE:'자격증명'})[type] || '제목';
+    $('#description-label').textContent = certificate ? '메모' : competition ? '참여 내용' : '경험 내용';
+    const basic = $('#entry-basic'), extra = $('#entry-extra-fields');
+    (certificate ? extra : basic).append($('#entry-end'));
+    (certificate ? extra : basic).append($('#ongoing-field'));
+    (certificate || competition ? extra : basic).append($('[data-field="role"]'));
+    (certificate ? extra : basic).append($('#entry-description'));
+    if (competition) basic.append($('#competition-results'));
+    extra.append($('#entry-award'), $('#entry-credential'), $('#entry-challenge'), $('#entry-outcome'), $('#entry-tags'), $('#entry-links'));
     form.elements.placement.disabled = !competition;
     form.elements.awardName.disabled = !competition;
     $('#custom-category-field').hidden = !custom;
@@ -233,12 +245,12 @@
     renderLinkInputs(linksFor(item || {}));
     $('#experience-dialog-title').textContent = item ? '경험 수정' : '경험 추가';
     $('#save-experience').innerHTML = `저장 ${icon('arrowRight')}`;
-    $('#form-error').textContent = ''; configureFields(); showDialog('#experience-dialog');
+    $('#form-error').textContent = ''; $('#entry-extra').open = false; configureFields(); showDialog('#experience-dialog'); $('#experience-dialog .modal-body').scrollTop = 0;
   }
   function openDetail(id) {
     const e = state.experiences.find(e => e.id === id); if (!e) return;
     const meta = [[e.type === 'WORK' ? '회사 / 부서' : '기관 / 소속',e.organization],['장소',e.location],['함께한 사람',e.participants],[e.type === 'WORK' ? '직무 / 역할' : '나의 역할',e.role]];
-    $('#detail-content').innerHTML = `<header class="detail-header">${badge(e)}<button class="icon-button" data-close aria-label="닫기">${icon('close')}</button><h2 id="detail-title">${escape(e.title)}</h2><span class="detail-date">${escape(period(e))}${e.demo?' · 예시 기록':''}</span></header><div class="detail-body"><dl class="detail-meta">${meta.filter(([,v]) => v).map(([l,v]) => `<div><dt>${l}</dt><dd>${escape(v)}</dd></div>`).join('')}</dl>${e.description?`<section class="detail-section"><h3>경험 이야기</h3><p>${escape(e.description)}</p></section>`:''}${resultHtml(e)}${e.outcome?`<section class="detail-section outcome"><h3>결과 / 성과</h3><p>${escape(e.outcome)}</p></section>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksFor(e).length?`<section class="detail-section"><h3>관련 링크</h3>${linksHtml(e)}</section>`:''}<p class="detail-date">${e.featured?'★ 포트폴리오에 포함됨':''}</p></div><footer class="modal-footer detail-footer"><button class="delete-button" data-delete="${id}">${icon('trash')}삭제</button><div><button class="button secondary" data-close>닫기</button><button class="button primary" data-edit="${id}">${icon('edit')}경험 수정하기</button></div></footer>`;
+    $('#detail-content').innerHTML = `<header class="detail-header">${badge(e)}<button class="icon-button" data-close aria-label="닫기">${icon('close')}</button><h2 id="detail-title">${escape(e.title)}</h2><span class="detail-date">${escape(period(e))}${e.demo?' · 예시 기록':''}</span></header><div class="detail-body"><dl class="detail-meta">${meta.filter(([,v]) => v).map(([l,v]) => `<div><dt>${l}</dt><dd>${escape(v)}</dd></div>`).join('')}</dl>${e.description?`<section class="detail-section"><h3>경험 이야기</h3><p>${escape(e.description)}</p></section>`:''}${e.challenge?`<section class="detail-section"><h3>어려움과 해결</h3><p>${escape(e.challenge)}</p></section>`:''}${e.credentialNumber?`<section class="detail-section"><h3>자격번호</h3><p>${escape(e.credentialNumber)}</p></section>`:''}${resultHtml(e)}${e.outcome?`<section class="detail-section outcome"><h3>결과 / 성과</h3><p>${escape(e.outcome)}</p></section>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksFor(e).length?`<section class="detail-section"><h3>관련 링크</h3>${linksHtml(e)}</section>`:''}<p class="detail-date">${e.featured?'★ 포트폴리오에 포함됨':''}</p></div><footer class="modal-footer detail-footer"><button class="delete-button" data-delete="${id}">${icon('trash')}삭제</button><div><button class="button secondary" data-close>닫기</button><button class="button primary" data-edit="${id}">${icon('edit')}경험 수정하기</button></div></footer>`;
     showDialog('#detail-dialog');
   }
   let confirmAction;

@@ -45,6 +45,6 @@ public class DemoData implements CommandLineRunner {
             String outcome, String tags, boolean featured) {
         experiences.save(new Experience(new ExperienceRequest(type, title, organization, location,
                 LocalDate.parse(start), end == null ? null : LocalDate.parse(end),
-                type == ExperienceType.PROJECT, people, role, description, outcome, tags, "", featured, "", "", "", null), true));
+                type == ExperienceType.PROJECT, people, role, description, outcome, tags, "", featured, "", "", "", null, "", ""), true));
     }
 }
