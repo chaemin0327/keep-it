@@ -50,6 +50,17 @@ class PortfolioApiTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test void draftAcceptsMoreThanThirtyButRejectsOverTwoHundred() throws Exception {
+        var ids = java.util.stream.LongStream.rangeClosed(1, 31).boxed().toList();
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("question", "경험", "experienceIds", ids))))
+                .andExpect(status().isServiceUnavailable());
+        var tooMany = java.util.stream.LongStream.rangeClosed(1, 201).boxed().toList();
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("question", "경험", "experienceIds", tooMany))))
+                .andExpect(status().isBadRequest());
+    }
+
     @Test void draftWithoutApiKeyExplainsSetup() throws Exception {
         mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"question\":\"협업 경험\",\"experienceIds\":[1]}"))

@@ -275,13 +275,21 @@
     $('#draft-select-all').checked = firstIds.length > 0 && firstIds.every(id => checked.has(id));
     $('#draft-choices').innerHTML = state.experiences.length ? state.experiences.map(e => `<label class="draft-choice"><input type="checkbox" value="${e.id}" ${checked.has(String(e.id))?'checked':''}><span><strong>${escape(e.title)}</strong><small>${escape(categoryLabel(e))} · ${escape(period(e))}</small></span></label>`).join('') : '<p>먼저 경험을 추가해주세요.</p>';
   }
+  document.querySelectorAll('[name="draft-mode"]').forEach(input=>input.addEventListener('change',()=>{
+    const auto=document.querySelector('[name="draft-mode"]:checked').value==='auto';
+    $('#draft-manual').hidden=auto;
+    $('#draft-transmission').textContent=auto ? '초안 만들기를 누르면 지원 문항과 저장된 모든 경험의 내용이 Google Gemini로 전송돼요. 최대 200개까지 가능해요.' : '초안 만들기를 누르면 지원 문항과 직접 선택한 경험의 내용이 Google Gemini로 전송돼요. 최대 30개까지 가능해요.';
+    $('#draft-error').textContent='';
+  }));
   $('#draft-select-all').addEventListener('change',event=>{document.querySelectorAll('#draft-choices input').forEach((el,i)=>{el.checked=event.target.checked && i<30;});});
   $('#draft-choices').addEventListener('change',()=>{const boxes=[...document.querySelectorAll('#draft-choices input')];$('#draft-select-all').checked=boxes.length>0 && boxes.slice(0,30).every(el=>el.checked);});
   $('#draft-form').addEventListener('submit', async event => {
     event.preventDefault(); const button=event.currentTarget.querySelector('[type=submit]');
-    const ids=[...document.querySelectorAll('#draft-choices input:checked')].map(el=>Number(el.value));
+    const auto=document.querySelector('[name="draft-mode"]:checked').value==='auto';
+    const ids=auto ? state.experiences.map(e=>e.id) : [...document.querySelectorAll('#draft-choices input:checked')].map(el=>Number(el.value));
     $('#draft-error').textContent=''; $('#draft-result').hidden=true;
-    if (!ids.length || ids.length > 30) { $('#draft-error').textContent='경험을 1개 이상 30개 이하로 선택해주세요.'; return; }
+    if (!ids.length) { $('#draft-error').textContent=auto ? '먼저 경험을 추가해주세요.' : '참고할 경험을 선택해주세요.'; return; }
+    if (ids.length > (auto ? 200 : 30)) { $('#draft-error').textContent=auto ? '경험이 200개를 넘어 전체 경험을 한 번에 보낼 수 없어요. 직접 고르기를 이용해주세요.' : '경험은 최대 30개까지 선택할 수 있어요.'; return; }
     button.disabled=true; button.textContent='초안을 만들고 있어요…';
     try {
       const result=await api('/drafts',{method:'POST',body:JSON.stringify({question:$('#draft-question').value.trim(),experienceIds:ids})});

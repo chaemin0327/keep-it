@@ -32,7 +32,7 @@ public class DraftController {
         this.experiences = experiences; this.mapper = mapper; this.apiKey = apiKey; this.model = model; this.client = client;
     }
     public record DraftRequest(@NotBlank @Size(max=3000) String question,
-                               @NotEmpty @Size(max=30) List<@NotNull Long> experienceIds) {}
+                               @NotEmpty @Size(max=200) List<@NotNull Long> experienceIds) {}
     public record Recommendation(Long id, String title, String reason) {}
     public record DraftResponse(List<Recommendation> experiences, String draft) {}
 
