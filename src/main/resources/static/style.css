@@ -422,3 +422,25 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 @media (max-width: 600px) { .archive-intro { margin-bottom: 22px; } .archive-intro h1 { font-size: 26px; } }
 
 @media (max-width: 600px) { .timeline-track { grid-auto-columns: minmax(268px, calc(100vw - 96px)); } .year-label { font-size: 24px; } .timeline-card { padding: 16px; } .timeline-title { font-size: 15px; } }
+
+.draft-panel { max-width: 820px; border: 1px solid var(--line); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+.draft-panel .field textarea { width: 100%; }
+.draft-experiences { border: 0; padding: 0; margin: 22px 0; }
+.draft-experiences legend, .draft-panel h3 { font-size: 15px; font-weight: 700; }
+.draft-experiences p, .draft-notice { color: var(--text); font-size: 12px; line-height: 1.7; }
+.draft-select-all { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: var(--text); font-size: 12px; }
+.draft-select-all input { accent-color: var(--accent); }
+#draft-choices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; max-height: 340px; overflow: auto; }
+.draft-choice { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.draft-choice input { accent-color: var(--accent); margin-top: 4px; }
+.draft-choice strong, .draft-choice small { display: block; overflow-wrap: anywhere; }
+.draft-choice small { color: var(--muted); margin-top: 3px; }
+.draft-recommendation { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.draft-recommendation p { margin: 4px 0; color: var(--text); }
+#draft-result .field { margin-top: 20px; }
+@media(max-width:600px) { .draft-panel { padding: 16px; } #draft-choices { grid-template-columns: 1fr; } }
+
+.draft-mode { display:flex; flex-wrap:wrap; gap:12px 24px; border:0; padding:0; margin:22px 0 0; }
+.draft-mode legend { font-size:15px; font-weight:700; margin-bottom:8px; }
+.draft-mode label { display:flex; align-items:center; gap:7px; cursor:pointer; }
+.draft-mode input { accent-color:var(--accent); }

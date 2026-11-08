@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:moa-test;DB_CLOSE_DELAY=-1",
-        "spring.jpa.hibernate.ddl-auto=create-drop"
+        "spring.jpa.hibernate.ddl-auto=create-drop", "GEMINI_API_KEY="
 })
 @AutoConfigureMockMvc
 @Transactional
@@ -42,6 +42,30 @@ class PortfolioApiTests {
         return mvc.perform(post("/api/experiences").contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(data)))
                 .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+    }
+
+    @Test void draftRequiresQuestionAndSelectedExperiences() throws Exception {
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"question\":\"\",\"experienceIds\":[]} "))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test void draftAcceptsMoreThanThirtyButRejectsOverTwoHundred() throws Exception {
+        var ids = java.util.stream.LongStream.rangeClosed(1, 31).boxed().toList();
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("question", "경험", "experienceIds", ids))))
+                .andExpect(status().isServiceUnavailable());
+        var tooMany = java.util.stream.LongStream.rangeClosed(1, 201).boxed().toList();
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("question", "경험", "experienceIds", tooMany))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test void draftWithoutApiKeyExplainsSetup() throws Exception {
+        mvc.perform(post("/api/drafts").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"question\":\"협업 경험\",\"experienceIds\":[1]}"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.message").value("Gemini API 키가 설정되지 않았어요. 서버 설정을 확인해주세요."));
     }
 
     @Test void createReadUpdateDelete() throws Exception {

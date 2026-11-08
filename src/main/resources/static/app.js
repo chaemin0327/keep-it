@@ -182,16 +182,17 @@
     $('#profile-initial').textContent = [...state.profile.name][0] || '나';
   }
   function navigate(page) {
-    if (!['archive','timeline','portfolio'].includes(page)) page = 'archive';
+    if (!['archive','timeline','portfolio','draft'].includes(page)) page = 'archive';
     state.page = page;
-    ['archive','timeline','portfolio'].forEach(p => $(`#${p}-page`).hidden = p !== page);
+    ['archive','timeline','portfolio','draft'].forEach(p => $(`#${p}-page`).hidden = p !== page);
     $('#archive-intro').hidden = page !== 'archive';
-    $('#stats').hidden = page === 'portfolio';
-    $('#breadcrumb-page').textContent = {archive:'나의 경험',timeline:'타임라인',portfolio:'포트폴리오'}[page];
+    $('#stats').hidden = page === 'portfolio' || page === 'draft';
+    $('#breadcrumb-page').textContent = {archive:'나의 경험',timeline:'타임라인',portfolio:'포트폴리오',draft:'자소서 초안'}[page];
     document.querySelectorAll('.primary-nav [data-page]').forEach(b => { b.classList.toggle('active', b.dataset.page===page); if (b.dataset.page === page) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
     $('#sidebar').classList.remove('open');
     if (location.hash !== `#${page}`) history.replaceState(null,'',`#${page}`);
     renderFilters();
+    if (page === 'draft') renderDraftChoices();
     updateTimelineNavigation();
     window.scrollTo({top:0,behavior:'instant'});
   }
@@ -268,6 +269,36 @@
     const retry = event.target.closest('[data-retry]'); if(retry) load();
     if (!event.target.closest('#sidebar') && !event.target.closest('#menu-button')) $('#sidebar').classList.remove('open');
   });
+  function renderDraftChoices() {
+    const checked = new Set([...document.querySelectorAll('#draft-choices input:checked')].map(el => el.value));
+    const firstIds = state.experiences.slice(0,30).map(e => String(e.id));
+    $('#draft-select-all').checked = firstIds.length > 0 && firstIds.every(id => checked.has(id));
+    $('#draft-choices').innerHTML = state.experiences.length ? state.experiences.map(e => `<label class="draft-choice"><input type="checkbox" value="${e.id}" ${checked.has(String(e.id))?'checked':''}><span><strong>${escape(e.title)}</strong><small>${escape(categoryLabel(e))} · ${escape(period(e))}</small></span></label>`).join('') : '<p>먼저 경험을 추가해주세요.</p>';
+  }
+  document.querySelectorAll('[name="draft-mode"]').forEach(input=>input.addEventListener('change',()=>{
+    const auto=document.querySelector('[name="draft-mode"]:checked').value==='auto';
+    $('#draft-manual').hidden=auto;
+    $('#draft-transmission').textContent=auto ? '초안 만들기를 누르면 지원 문항과 저장된 모든 경험의 내용이 Google Gemini로 전송돼요. 최대 200개까지 가능해요.' : '초안 만들기를 누르면 지원 문항과 직접 선택한 경험의 내용이 Google Gemini로 전송돼요. 최대 30개까지 가능해요.';
+    $('#draft-error').textContent='';
+  }));
+  $('#draft-select-all').addEventListener('change',event=>{document.querySelectorAll('#draft-choices input').forEach((el,i)=>{el.checked=event.target.checked && i<30;});});
+  $('#draft-choices').addEventListener('change',()=>{const boxes=[...document.querySelectorAll('#draft-choices input')];$('#draft-select-all').checked=boxes.length>0 && boxes.slice(0,30).every(el=>el.checked);});
+  $('#draft-form').addEventListener('submit', async event => {
+    event.preventDefault(); const button=event.currentTarget.querySelector('[type=submit]');
+    const auto=document.querySelector('[name="draft-mode"]:checked').value==='auto';
+    const ids=auto ? state.experiences.map(e=>e.id) : [...document.querySelectorAll('#draft-choices input:checked')].map(el=>Number(el.value));
+    $('#draft-error').textContent=''; $('#draft-result').hidden=true;
+    if (!ids.length) { $('#draft-error').textContent=auto ? '먼저 경험을 추가해주세요.' : '참고할 경험을 선택해주세요.'; return; }
+    if (ids.length > (auto ? 200 : 30)) { $('#draft-error').textContent=auto ? '경험이 200개를 넘어 전체 경험을 한 번에 보낼 수 없어요. 직접 고르기를 이용해주세요.' : '경험은 최대 30개까지 선택할 수 있어요.'; return; }
+    button.disabled=true; button.textContent='초안을 만들고 있어요…';
+    try {
+      const result=await api('/drafts',{method:'POST',body:JSON.stringify({question:$('#draft-question').value.trim(),experienceIds:ids})});
+      $('#draft-recommendations').innerHTML=result.experiences.length ? result.experiences.map(e=>`<div class="draft-recommendation"><strong>${escape(e.title)}</strong><p>${escape(e.reason)}</p></div>`).join('') : '<p>관련 경험을 찾지 못했어요.</p>';
+      $('#draft-text').value=result.draft; $('#draft-result').hidden=false;
+    } catch(e) { $('#draft-error').textContent=e.message; }
+    finally {button.disabled=false;button.textContent='관련 경험 찾고 초안 만들기';}
+  });
+  $('#draft-copy').addEventListener('click', async()=>{try{await navigator.clipboard.writeText($('#draft-text').value);toast('초안을 복사했어요.');}catch{toast('초안을 선택해 복사해주세요.',true);}});
   $('#search').addEventListener('input', event=>{state.query=event.target.value.trim();renderExperiences();});
   $('#sort').addEventListener('change',event=>{state.sort=event.target.value;renderExperiences();});
   $('#timeline-type').addEventListener('change',()=>{renderTimeline();$('#timeline-list').scrollTo({left:0,behavior:'instant'});updateTimelineNavigation();});
