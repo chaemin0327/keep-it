@@ -71,4 +71,4 @@ Windows에서는 `mvnw.cmd spring-boot:run`을 사용합니다.
 
 자소서 초안 메뉴에서 지원 문항을 작성하고 참고할 경험을 선택하면, Gemini가 관련 경험과 초안을 제안합니다. 생성 버튼을 누르면 선택한 경험과 문항이 Google Gemini API로 전송됩니다. 결과는 화면에서 직접 수정하고 복사할 수 있으며 저장되지 않습니다. 초안의 사실관계는 직접 확인하세요.
 
-사용하려면 별도로 발급한 Gemini API 키를 실행 환경의 `GEMINI_API_KEY`에 설정하고 서버를 다시 실행하세요. 모델은 기본 `gemini-2.5-flash`이며 `GEMINI_MODEL`로 변경할 수 있습니다. 키를 Git이나 공유 파일에 기록하지 마세요. API 이용 한도와 요금은 Google 계정 및 모델 설정에 따릅니다. [Gemini API 안내](https://ai.google.dev/gemini-api/docs/text-generation)
+사용하려면 별도로 발급한 Gemini API 키를 실행 환경의 `GEMINI_API_KEY`에 설정하고 서버를 다시 실행하세요. 모델은 기본 `gemini-3.1-flash-lite`이며 `GEMINI_MODEL`로 변경할 수 있습니다. 키를 Git이나 공유 파일에 기록하지 마세요. API 이용 한도와 요금은 Google 계정 및 모델 설정에 따릅니다. [Gemini API 안내](https://ai.google.dev/gemini-api/docs/text-generation)

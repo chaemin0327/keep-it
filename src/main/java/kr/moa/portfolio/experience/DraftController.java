@@ -25,7 +25,7 @@ public class DraftController {
     @org.springframework.beans.factory.annotation.Autowired
     public DraftController(ExperienceRepository experiences, ObjectMapper mapper,
                            @Value("${GEMINI_API_KEY:}") String apiKey,
-                           @Value("${GEMINI_MODEL:gemini-2.5-flash}") String model) {
+                           @Value("${GEMINI_MODEL:gemini-3.1-flash-lite}") String model) {
         this(experiences, mapper, apiKey, model, HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
     }
     DraftController(ExperienceRepository experiences, ObjectMapper mapper, String apiKey, String model, HttpClient client) {
