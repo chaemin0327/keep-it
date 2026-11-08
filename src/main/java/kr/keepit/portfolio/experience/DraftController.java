@@ -1,4 +1,4 @@
-package kr.moa.portfolio.experience;
+package kr.keepit.portfolio.experience;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

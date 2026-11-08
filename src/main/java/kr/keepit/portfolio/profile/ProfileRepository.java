@@ -1,4 +1,4 @@
-package kr.moa.portfolio.profile;
+package kr.keepit.portfolio.profile;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

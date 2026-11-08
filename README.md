@@ -44,14 +44,14 @@ Windows에서는 `mvnw.cmd spring-boot:run`을 사용합니다.
 1. 프로젝트 폴더 또는 `pom.xml`을 Maven 프로젝트로 엽니다.
 2. Project SDK는 Java 21, Maven은 Maven Wrapper를 사용합니다.
 3. Maven 도구 창에서 프로젝트를 동기화합니다.
-4. `MoaPortfolioApplication`의 `main` 또는 `keep it · 킵잇 실행` 구성을 실행합니다.
+4. `KeepItApplication`의 `main` 또는 `keep it · 킵잇 실행` 구성을 실행합니다.
 5. 테스트는 `PortfolioApiTests` 또는 `keep it · 전체 테스트` 구성을 사용합니다.
 
 실행 포트가 사용 중이면 기존 앱을 종료하거나 `PORT` 환경변수를 변경합니다.
 
 ## 데이터 및 현재 범위
 
-- DB는 프로젝트 폴더의 `data/`에 저장되며 Git에 포함하지 않습니다.
+- DB는 프로젝트 폴더의 `data/keepit.mv.db`에 저장되며 Git에 포함하지 않습니다. 기존 `data/moa.mv.db`가 있고 새 DB가 없을 때 처음 실행하면서 복사하며 원본은 백업으로 남깁니다. 기존 앱이 실행 중이면 종료한 뒤 실행합니다. 기존 `MOA_DATA_DIR`도 호환하며 새 설정은 `KEEPIT_DATA_DIR`을 사용합니다.
 - 개인용 로컬 시제품으로, 회원가입·다중 사용자·공개 링크 배포·파일 업로드는 구현하지 않았습니다.
 - 기본적으로 `127.0.0.1`에서만 접속할 수 있습니다.
 - API 통합·기존 DB 회귀 테스트 18개를 포함하며 Maven 검증 및 GitHub Actions CI를 사용합니다.

@@ -1,4 +1,4 @@
-package kr.moa.portfolio.experience;
+package kr.keepit.portfolio.experience;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;

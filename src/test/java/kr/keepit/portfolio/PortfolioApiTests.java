@@ -1,4 +1,4 @@
-package kr.moa.portfolio;
+package kr.keepit.portfolio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(properties = {
-        "spring.datasource.url=jdbc:h2:mem:moa-test;DB_CLOSE_DELAY=-1",
+        "spring.datasource.url=jdbc:h2:mem:keepit-test;DB_CLOSE_DELAY=-1",
         "spring.jpa.hibernate.ddl-auto=create-drop", "GEMINI_API_KEY="
 })
 @AutoConfigureMockMvc
@@ -146,11 +146,11 @@ class PortfolioApiTests {
 
     @Test void workExperienceKeepsEmploymentDetails() throws Exception {
         var data = experience(); data.put("type", "WORK");
-        data.put("organization", "모아 회사 / 개발팀"); data.put("role", "백엔드 인턴");
+        data.put("organization", "킵잇 회사 / 개발팀"); data.put("role", "백엔드 인턴");
         data.put("ongoing", true); data.put("outcome", "API 응답 시간 개선");
         mvc.perform(get(create(data))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.type").value("WORK"))
-                .andExpect(jsonPath("$.organization").value("모아 회사 / 개발팀"))
+                .andExpect(jsonPath("$.organization").value("킵잇 회사 / 개발팀"))
                 .andExpect(jsonPath("$.role").value("백엔드 인턴"))
                 .andExpect(jsonPath("$.ongoing").value(true));
     }
