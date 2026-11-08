@@ -172,8 +172,34 @@
     }
     updateTimelineNavigation();
   }
+  const portfolioOrderKey = 'keep-it-portfolio-order-v1';
+  function loadPortfolioOrder() {
+    try { const saved=JSON.parse(localStorage.getItem(portfolioOrderKey) || '[]'); return Array.isArray(saved) ? saved.filter(Number.isSafeInteger) : []; }
+    catch { return []; }
+  }
+  let portfolioOrder=loadPortfolioOrder();
+  function orderedPortfolio() {
+    const selected=state.experiences.filter(e=>e.featured).sort((a,b)=>b.startDate.localeCompare(a.startDate)||b.id-a.id);
+    const byId=new Map(selected.map(e=>[e.id,e]));
+    const ordered=portfolioOrder.filter((id,index,arr)=>arr.indexOf(id)===index && byId.has(id)).map(id=>byId.get(id));
+    const included=new Set(ordered.map(e=>e.id));
+    return ordered.concat(selected.filter(e=>!included.has(e.id)));
+  }
+  function movePortfolio(id, delta) {
+    const list=orderedPortfolio(); const index=list.findIndex(e=>e.id===id); const target=index+delta;
+    if (index<0 || target<0 || target>=list.length) return;
+    [list[index],list[target]]=[list[target],list[index]];
+    portfolioOrder=list.map(e=>e.id);
+    try { localStorage.setItem(portfolioOrderKey,JSON.stringify(portfolioOrder)); }
+    catch { toast('이 브라우저에는 순서를 저장할 수 없어요.',true); }
+    renderPortfolio();
+    const focus=$(`#portfolio-order [data-move-id="${id}"][data-move-direction="${delta}"]`);
+    if (focus && !focus.disabled) focus.focus();
+    else $(`#portfolio-order [data-move-id="${id}"]:not(:disabled)`)?.focus();
+  }
   function renderPortfolio() {
-    const p = state.profile, list = state.experiences.filter(e => e.featured).sort((a,b) => b.startDate.localeCompare(a.startDate) || b.id-a.id);
+    const p = state.profile, list = orderedPortfolio();
+    $('#portfolio-order').innerHTML = list.length ? `<ol class="portfolio-order-list">${list.map((e,i)=>`<li><div class="portfolio-order-info"><strong>${escape(e.title)}</strong><span>${escape(categoryLabel(e))} · ${escape(period(e))}</span></div><div class="portfolio-order-actions"><button type="button" data-move-id="${e.id}" data-move-direction="-1" aria-label="${escape(e.title)} 위로 이동" ${i===0?'disabled':''}>↑</button><button type="button" data-move-id="${e.id}" data-move-direction="1" aria-label="${escape(e.title)} 아래로 이동" ${i===list.length-1?'disabled':''}>↓</button><button type="button" data-star="${e.id}" aria-label="${escape(e.title)} 포트폴리오에서 빼기">빼기</button></div></li>`).join('')}</ol>` : '<p class="portfolio-empty-note">담은 경험이 없어요. 경험 목록에서 별표를 눌러 추가해 주세요.</p>';
     $('#portfolio-sheet').innerHTML = `<header class="portfolio-header"><h1>${escape(p.name)}</h1><p class="portfolio-headline">${escape(p.headline)}</p>${p.bio?`<p class="portfolio-bio">${escape(p.bio)}</p>`:''}${p.email?`<a class="portfolio-email" href="mailto:${escape(p.email)}">${escape(p.email)}</a>`:''}</header><h2 class="portfolio-section-title">주요 경험 <span>· ${list.length}</span></h2>${list.length ? list.map(e => `<section class="portfolio-item"><div class="portfolio-date">${escape(period(e))}</div><div>${badge(e)}<h3>${escape(e.title)}</h3><p class="item-meta">${escape([e.organization,e.location,e.role].filter(Boolean).join(' · '))}</p>${e.participants?`<p class="item-meta">함께한 사람 · ${escape(e.participants)}</p>`:''}${e.description?`<p>${escape(e.description)}</p>`:''}${e.challenge?`<p><strong>어려움과 해결</strong> · ${escape(e.challenge)}</p>`:''}${resultHtml(e)}${e.outcome?`<p class="item-outcome">${escape(e.outcome)}</p>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksHtml(e)}</div></section>`).join('') : '<div class="empty-state"><h3>아직 선택한 경험이 없어요</h3><p>카드의 별표를 눌러 추가하세요.</p></div>'}<footer class="portfolio-end"><span>keep it<img class="portfolio-brand-mark" src="/brand-mark.svg" alt="" width="20" height="20"></span></footer>`;
   }
   function render() {
@@ -274,6 +300,7 @@
     const filter = event.target.closest('[data-filter]'); if (filter) {state.filter=filter.dataset.filter;navigate('archive');renderFilters();renderExperiences();return;}
     const layout = event.target.closest('[data-layout]'); if (layout) {state.layout=layout.dataset.layout;renderExperiences();return;}
     const reset = event.target.closest('[data-reset-filter]'); if(reset){state.filter='ALL';state.query='';$('#search').value='';renderFilters();renderExperiences();return;}
+    const move = event.target.closest('[data-move-id]'); if(move){movePortfolio(Number(move.dataset.moveId),Number(move.dataset.moveDirection));return;}
     const star = event.target.closest('[data-star]'); if(star){run(async () => {const e=state.experiences.find(e=>e.id===Number(star.dataset.star));star.disabled=true;try {const updated=await api(`/experiences/${e.id}`,{method:'PUT',body:JSON.stringify({...e,featured:!e.featured})});state.experiences=state.experiences.map(item=>item.id===updated.id?updated:item);render();toast(updated.featured?'포트폴리오에 담았어요.':'포트폴리오에서 뺐어요.');}finally{star.disabled=false;}});return;}
     const edit = event.target.closest('[data-edit]'); if(edit){openExperience(Number(edit.dataset.edit));return;}
     const del = event.target.closest('[data-delete]'); if(del){const id=Number(del.dataset.delete);confirm('이 경험을 삭제할까요?','삭제한 경험은 되돌릴 수 없어요.',async()=>{await api(`/experiences/${id}`,{method:'DELETE'});state.experiences=state.experiences.filter(e=>e.id!==id);render();toast('경험을 삭제했어요.');});return;}
@@ -339,6 +366,7 @@
   $('#profile-button').addEventListener('click',()=>{if(!state.loaded)return;const form=$('#profile-form');Object.entries(state.profile).forEach(([k,v])=>{if(form.elements[k])form.elements[k].value=v;});$('#profile-form .form-error').textContent='';showDialog('#profile-dialog');});
   $('#profile-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');button.disabled=true;try{state.profile=await api('/profile',{method:'PUT',body:JSON.stringify(Object.fromEntries(new FormData(form)))});render();$('#profile-dialog').close();toast('프로필을 저장했어요.');}catch(e){form.querySelector('.form-error').textContent=e.message;}finally{button.disabled=false;}});
   $('#menu-button').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+  $('#portfolio-edit-profile').addEventListener('click',()=>$('#profile-button').click());
   $('#print-button').addEventListener('click',()=>window.print());
   window.addEventListener('hashchange',()=>navigate(location.hash.slice(1)));
   async function load(){

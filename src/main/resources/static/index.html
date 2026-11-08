@@ -50,9 +50,11 @@
         <div class="timeline-tools"><label>경험 종류 <select id="timeline-type"><option value="ALL">모든 경험</option></select></label><div id="timeline-navigation" class="timeline-navigation" role="group" aria-label="타임라인 이동" hidden><button class="icon-button" id="timeline-prev" aria-label="이전 연도 보기" type="button"><i data-icon="arrowRight"></i></button><button class="icon-button" id="timeline-next" aria-label="다음 연도 보기" type="button"><i data-icon="arrowRight"></i></button></div></div><div id="timeline-list" class="timeline-viewport" role="region" aria-label="연도별 경험 타임라인" tabindex="0"></div>
       </section>
       <section id="portfolio-page" class="page-section" hidden>
-        <div class="section-heading"><div><h2>나의 포트폴리오</h2></div><button class="button primary" id="print-button"><i data-icon="download"></i>인쇄 / PDF 저장</button></div>
-        <div class="portfolio-help"><i data-icon="star"></i><span>별표를 켠 경험이 여기에 모여요</span><button class="text-link" data-page="archive">경험 선택 →</button></div>
-        <article class="portfolio-sheet" id="portfolio-sheet"></article>
+        <div class="section-heading portfolio-heading"><div><h2>나의 포트폴리오</h2><p>담은 경험을 정리하고 PDF로 저장해요.</p></div><button class="button primary" id="print-button"><i data-icon="download"></i>인쇄 / PDF 저장</button></div>
+        <div class="portfolio-workspace">
+          <section class="portfolio-editor" aria-labelledby="portfolio-editor-title"><div class="portfolio-editor-head"><div><h3 id="portfolio-editor-title">포트폴리오 구성</h3><p>경험을 원하는 순서로 정리해요.</p></div><button class="text-link" data-page="archive">경험 추가 →</button></div><div id="portfolio-order" aria-live="polite"></div><p class="portfolio-order-note">경험 순서는 이 브라우저에 저장돼요.</p></section>
+          <section class="portfolio-preview" aria-labelledby="portfolio-preview-title"><div class="portfolio-preview-head"><h3 id="portfolio-preview-title">미리보기</h3><button class="button secondary" id="portfolio-edit-profile" type="button">소개 수정</button></div><article class="portfolio-sheet" id="portfolio-sheet"></article></section>
+        </div>
       </section>
     </main>
   </div>

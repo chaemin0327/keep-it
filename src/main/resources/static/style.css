@@ -450,3 +450,23 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 .entry-extra summary span { color: var(--muted); font-weight: 400; margin-left: 5px; }
 .entry-extra .form-grid { margin-top: 16px; }
 .featured-check { margin-top: 20px; }
+
+.portfolio-heading p { margin: 4px 0 0; color: var(--muted); }
+.portfolio-workspace { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.portfolio-editor { border: 1px solid var(--line); border-radius: 10px; padding: 20px; background: white; }
+.portfolio-editor-head, .portfolio-preview-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.portfolio-editor h3, .portfolio-preview h3 { font-size:15px; margin:0; }
+.portfolio-editor-head p, .portfolio-order-note, .portfolio-empty-note { color:var(--muted); font-size:12px; margin:6px 0 0; line-height:1.6; }
+.portfolio-order-list { padding:0; margin:18px 0 0; list-style:none; }
+.portfolio-order-list li { padding:13px 0; border-top:1px solid var(--line); }
+.portfolio-order-info strong, .portfolio-order-info span { display:block; overflow-wrap:anywhere; }
+.portfolio-order-info strong { font-size:13px; }
+.portfolio-order-info span { font-size:11px; color:var(--muted); margin-top:4px; }
+.portfolio-order-actions { display:flex; gap:5px; margin-top:9px; }
+.portfolio-order-actions button { border:1px solid var(--line); border-radius:6px; padding:4px 9px; color:var(--text); min-height:32px; }
+.portfolio-order-actions button:disabled { opacity:.35; cursor:default; }
+.portfolio-preview-head { margin-bottom:12px; }
+.portfolio-preview-head .button { min-height:36px; padding:7px 12px; }
+.portfolio-preview .portfolio-sheet { box-shadow:0 5px 20px rgba(23,42,70,.04); }
+@media(max-width:1050px) { .portfolio-workspace { grid-template-columns:1fr; } }
+@media print { .portfolio-editor, .portfolio-preview-head, .portfolio-heading { display:none !important; } .portfolio-workspace { display:block; } .portfolio-preview .portfolio-sheet { box-shadow:none; } }
