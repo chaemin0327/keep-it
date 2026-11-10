@@ -51,8 +51,16 @@ i[data-icon] { display: inline-flex; font-style: normal; }
 .category-nav { display: grid; gap: 2px; min-height: 0; overflow-y: auto; flex-shrink: 1; }
 .category-item { display: flex; gap: 11px; align-items: center; text-align: left; padding: 7px 14px; border-radius: 7px; font-size: 12px; color: var(--text); }
 .category-item:hover, .category-item.active { background: var(--surface); color: var(--accent); }
-.category-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
-.category-item.active .category-dot { background: var(--accent); }
+.category-dot { width: 8px; height: 8px; border-radius: 50%; background: #8898ae; }
+.category-item[data-filter="WORK"] .category-dot { background: #607fbd; }
+.category-item[data-filter="PROJECT"] .category-dot { background: #3799d3; }
+.category-item[data-filter="COMPETITION"] .category-dot { background: #ed9a51; }
+.category-item[data-filter="AWARD"] .category-dot { background: #d4a52c; }
+.category-item[data-filter="CERTIFICATE"] .category-dot { background: #53a989; }
+.category-item[data-filter="PAPER"] .category-dot { background: #9a80c8; }
+.category-item[data-filter="OVERSEAS"] .category-dot { background: #53abb1; }
+.category-item[data-filter="ACTIVITY"] .category-dot { background: #de8097; }
+.category-item[data-filter="EDUCATION"] .category-dot { background: #9c967c; }
 .category-count { flex-shrink: 0; margin-left: auto; font-size: 11px; color: var(--muted); }
 .sidebar-bottom { margin-top: auto; padding-top: 24px; }
 .profile-switch { border-top: 1px solid var(--line); margin-top: 20px; padding: 19px 7px 0; display: flex; width: 100%; align-items: center; gap: 10px; text-align: left; }
