@@ -168,7 +168,11 @@
       $('#timeline-list').innerHTML = `<div class="empty-state"><span>${icon('timeline')}</span><h3>아직 경험이 없어요</h3><button class="button primary" data-action="add">경험 추가하기</button></div>`;
     } else {
       const years = [...new Set(list.map(e => e.startDate.slice(0,4)))];
-      $('#timeline-list').innerHTML = `<div class="timeline-track">${years.map(year => `<section class="timeline-year" aria-labelledby="timeline-year-${year}"><header class="timeline-year-header"><h3 class="year-label" id="timeline-year-${year}">${year}</h3></header><ol class="timeline-items">${list.filter(e => e.startDate.startsWith(year)).map(timelineCard).join('')}</ol></section>`).join('')}</div>`;
+      $('#timeline-list').innerHTML = `<div class="timeline-track">${years.flatMap(year => [1,2].map(half => {
+        const experiences = list.filter(e => e.startDate.startsWith(year) && (Number(e.startDate.slice(5,7)) <= 6 ? 1 : 2) === half);
+        const label = `${year}년 ${half === 1 ? '상반기' : '하반기'}`;
+        return `<section class="timeline-year" aria-label="${label}"><header class="timeline-year-header"><h3 class="year-label">${year}<span class="timeline-half">${half === 1 ? '상반기' : '하반기'}</span></h3></header>${experiences.length ? `<ol class="timeline-items">${experiences.map(timelineCard).join('')}</ol>` : '<p class="timeline-empty">등록된 경험이 없어요</p>'}</section>`;
+      })).join('')}</div>`;
     }
     updateTimelineNavigation();
   }
