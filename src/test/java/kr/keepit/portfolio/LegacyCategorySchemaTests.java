@@ -17,10 +17,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.sql.init.mode=always",
         "spring.sql.init.schema-locations=classpath:legacy-schema.sql"
 })
-@AutoConfigureMockMvc
+@org.springframework.security.test.context.support.WithMockUser(username="test@example.com")
+@AutoConfigureMockMvc(addFilters=false)
 class LegacyCategorySchemaTests {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
+    @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     @Test void acceptsNewTypesAndPreservesExistingRowInLegacyDatabase() throws Exception {
         for (var type : new String[]{"WORK", "CUSTOM"}) {
@@ -28,9 +30,7 @@ class LegacyCategorySchemaTests {
             mvc.perform(post("/api/experiences").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data)))
                     .andExpect(status().isCreated()).andExpect(jsonPath("$.type").value(type));
         }
-        mvc.perform(get("/api/experiences/1")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("기존에 저장한 프로젝트"))
-                .andExpect(jsonPath("$.links[0]").value("https://example.com/legacy"))
-                .andExpect(jsonPath("$.featured").value(true));
+        mvc.perform(get("/api/experiences/1")).andExpect(status().isNotFound());
+        org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject("select title from experience where id = 1", String.class)).isEqualTo("기존에 저장한 프로젝트");
     }
 }

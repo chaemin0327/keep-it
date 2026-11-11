@@ -11,6 +11,7 @@ import java.util.List;
 public class Experience {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    @Column(length = 160) String owner;
     @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR) @Column(nullable = false, length = 32)
     ExperienceType type;
     @Column(nullable = false, length = 120) String title;

@@ -18,14 +18,16 @@ public class ExperienceController {
 
     @GetMapping
     public List<ExperienceView> list() {
-        return repository.findAll(Sort.by(Sort.Order.desc("startDate"), Sort.Order.desc("id")))
+        return repository.findAllByOwner(owner(), Sort.by(Sort.Order.desc("startDate"), Sort.Order.desc("id")))
                 .stream().map(ExperienceView::from).toList();
     }
 
     @PostMapping
     public ResponseEntity<ExperienceView> create(@Valid @RequestBody ExperienceRequest request) {
         validate(request);
-        var view = ExperienceView.from(repository.save(new Experience(request, false)));
+        var item = new Experience(request, false);
+        item.owner = owner();
+        var view = ExperienceView.from(repository.save(item));
         return ResponseEntity.created(URI.create("/api/experiences/" + view.id())).body(view);
     }
 
@@ -48,12 +50,14 @@ public class ExperienceController {
     @DeleteMapping("/demo")
     @Transactional
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteDemo() { repository.deleteByDemoTrue(); }
+    public void deleteDemo() { repository.deleteByOwnerAndDemoTrue(owner()); }
 
     private Experience find(Long id) {
-        return repository.findById(id).orElseThrow(() ->
+        return repository.findByIdAndOwner(id, owner()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "경험을 찾을 수 없어요."));
     }
+
+    private String owner() { return org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName(); }
 
     private void validate(ExperienceRequest r) {
         if (r.type() == ExperienceType.CUSTOM &&
