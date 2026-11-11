@@ -24,20 +24,22 @@ class AccountIsolationTests {
                 .content("{\"email\":\"a@example.com\",\"password\":\"1234567890\"}")).andExpect(status().isCreated());
         mvc.perform(post("/api/auth/login").with(csrf()).param("username","a@example.com").param("password","wrong"))
                 .andExpect(status().isUnauthorized());
-        mvc.perform(post("/api/auth/login").with(csrf()).param("username","a@example.com").param("password","1234567890"))
-                .andExpect(status().isNoContent());
+        var loggedIn=mvc.perform(post("/api/auth/login").with(csrf()).param("username","a@example.com").param("password","1234567890"))
+                .andExpect(status().isNoContent()).andReturn();
+        var userA=(org.springframework.mock.web.MockHttpSession)loggedIn.getRequest().getSession(false);
+        var userB=registerAndLogin("b@example.com");
         var data=Map.of("type","PROJECT","title","private","startDate","2026-01-01");
-        var result=mvc.perform(post("/api/experiences").with(user("a@example.com")).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data)))
+        var result=mvc.perform(post("/api/experiences").session(userA).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data)))
                 .andExpect(status().isCreated()).andReturn();
         String location=result.getResponse().getHeader("Location");
         var id=json.readTree(result.getResponse().getContentAsString()).get("id").asLong();
-        mvc.perform(get(location).with(user("b@example.com"))).andExpect(status().isNotFound());
-        mvc.perform(put(location).with(user("b@example.com")).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data))).andExpect(status().isNotFound());
-        mvc.perform(delete(location).with(user("b@example.com")).with(csrf())).andExpect(status().isNotFound());
-        mvc.perform(get("/api/experiences").with(user("b@example.com"))).andExpect(jsonPath("$.length()").value(0));
-        mvc.perform(post("/api/drafts").with(user("b@example.com")).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(get(location).session(userB)).andExpect(status().isNotFound());
+        mvc.perform(put(location).session(userB).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(data))).andExpect(status().isNotFound());
+        mvc.perform(delete(location).session(userB).with(csrf())).andExpect(status().isNotFound());
+        mvc.perform(get("/api/experiences").session(userB)).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(post("/api/drafts").session(userB).with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of("question","협업", "experienceIds",new long[]{id})))).andExpect(status().isBadRequest());
-        mvc.perform(get(location).with(user("a@example.com"))).andExpect(status().isOk());
+        mvc.perform(get(location).session(userA)).andExpect(status().isOk());
     }
     @Test void realSessionsKeepExperienceAndProfileSeparate() throws Exception {
         var sessionA = registerAndLogin("owner-a@example.com");
@@ -58,6 +60,21 @@ class AccountIsolationTests {
         mvc.perform(get("/api/experiences").session(sessionA)).andExpect(status().isUnauthorized());
         var newSessionA = login("owner-a@example.com");
         mvc.perform(get(location).session(newSessionA)).andExpect(status().isOk()).andExpect(jsonPath("$.title").value("A 전용 경험"));
+    }
+    @Test void importIsValidatedAtomicAndScopedToLoggedInAccount() throws Exception {
+        var a=registerAndLogin("import-a@example.com");
+        var b=registerAndLogin("import-b@example.com");
+        var valid=Map.of("type","PROJECT","title","백업 경험","startDate","2025-01-01","id",123,"demo",true);
+        var invalid=Map.of("type","PROJECT","title","잘못된 링크","startDate","2025-01-01","link","javascript:alert(1)");
+        mvc.perform(post("/api/experiences/import").session(a).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("experiences",java.util.List.of(valid,invalid)))))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/experiences").session(a)).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(post("/api/experiences/import").session(a).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("experiences",java.util.List.of(valid)))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.imported").value(1));
+        mvc.perform(get("/api/experiences").session(a)).andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].demo").value(false));
+        mvc.perform(get("/api/experiences").session(b)).andExpect(jsonPath("$.length()").value(0));
     }
     private org.springframework.mock.web.MockHttpSession registerAndLogin(String email) throws Exception {
         mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON)

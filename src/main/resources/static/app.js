@@ -291,7 +291,7 @@
   let confirmAction;
   function confirm(title, message, action) {
     $('#confirm-title').textContent = title; $('#confirm-message').textContent = message;
-    $('#confirm-dialog .form-error').textContent = ''; confirmAction = action; showDialog('#confirm-dialog');
+    $('#confirm-dialog .form-error').textContent = ''; $('#confirm-yes').textContent='확인'; confirmAction = action; showDialog('#confirm-dialog');
   }
   $('#confirm-yes').addEventListener('click', async () => {
     const button = $('#confirm-yes'); button.disabled=true;
@@ -382,6 +382,30 @@
     try{[state.experiences,state.profile]=await Promise.all([api('/experiences'),api('/profile')]);state.loaded=true;render();navigate(location.hash.slice(1)||'archive');}
     catch(e){$('#experience-list').innerHTML=`<div class="error-state"><h3>기록을 불러오지 못했어요.</h3><p>앱이 실행 중인지 확인한 뒤 다시 시도해주세요.</p><button class="button secondary" data-retry>다시 불러오기</button></div>`;toast(e.message,true);}
   }
+  $('#export-button').addEventListener('click', async () => {
+    try {
+      const [experiences, profile] = await Promise.all([api('/experiences'),api('/profile')]);
+      const file=new Blob([JSON.stringify({exportedAt:new Date().toISOString(), profile, experiences},null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(file), link=document.createElement('a');
+      link.href=url;link.download='keep-it-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      toast('내 기록을 파일로 저장했어요.');
+    } catch(e) {toast(e.message,true);}
+  });
+  $('#import-button').addEventListener('click', () => $('#import-file').click());
+  $('#import-file').addEventListener('change', async event => {
+    const input=event.currentTarget, file=input.files[0]; input.value=''; if(!file) return;
+    if(file.size>2_000_000) {toast('2MB 이하의 백업 파일을 선택해주세요.',true);return;}
+    let backup;
+    try {backup=JSON.parse(await file.text());} catch {toast('백업 파일을 읽지 못했어요.',true);return;}
+    if(!Array.isArray(backup.experiences) || backup.experiences.length<1 || backup.experiences.length>200) {
+      toast('경험이 1~200개인 킵잇 백업 파일을 선택해주세요.',true);return;
+    }
+    confirm('백업을 가져올까요?', `${backup.experiences.length}개의 경험이 현재 계정에 추가돼요. 같은 파일을 다시 가져오면 중복돼요.`, async()=>{
+      await api('/experiences/import',{method:'POST',body:JSON.stringify({experiences:backup.experiences})});
+      state.experiences=await api('/experiences');render();toast('백업한 경험을 가져왔어요.');
+    });
+    $('#confirm-yes').textContent='가져오기';
+  });
   $('#logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout',{method:'POST',headers:{[csrfToken.headerName]:csrfToken.token}}); location.href='/login.html'; });
   refreshCsrf().then(load).catch(() => toast('서버에 연결할 수 없어요.', true));
 })();
