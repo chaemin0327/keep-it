@@ -480,3 +480,16 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 .portfolio-preview .portfolio-sheet { box-shadow:0 5px 20px rgba(23,42,70,.04); }
 @media(max-width:1050px) { .portfolio-workspace { grid-template-columns:1fr; } }
 @media print { .portfolio-editor, .portfolio-preview-head, .portfolio-heading { display:none !important; } .portfolio-workspace { display:block; } .portfolio-preview .portfolio-sheet { box-shadow:none; } }
+
+/* Account entry */
+.auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f5f8fc; }
+.auth-card { width: min(100%, 420px); padding: 38px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 18px 55px #1f456c0d; }
+.auth-brand { display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-size:25px; letter-spacing:-1px; }
+.auth-brand span { color:#e8b637; }
+.auth-card h1 { margin:32px 0 8px; font-size:23px; letter-spacing:-.5px; }
+.auth-card > p { color:var(--muted); font-size:13px; line-height:1.7; }
+.auth-card form { display:grid; gap:16px; margin-top:28px; }
+.auth-submit { width:100%; justify-content:center; }
+.auth-switch { text-align:center; margin:24px 0 0; }
+.auth-switch button { color:var(--accent); font-weight:700; }
+.logout-button { padding:10px 7px; color:var(--muted); font-size:12px; }

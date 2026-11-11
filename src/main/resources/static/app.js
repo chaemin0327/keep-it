@@ -81,8 +81,13 @@
     $('#experience-links').replaceChildren();
     (values.length ? values : ['']).forEach(addLinkRow);
   }
+  let csrfToken;
+  async function refreshCsrf() { csrfToken = await (await fetch('/api/auth/csrf')).json(); }
   async function api(path, options={}) {
-    const response = await fetch(`/api${path}`, {headers:{'Content-Type':'application/json'}, ...options});
+    const headers = {'Content-Type':'application/json', ...(options.headers || {})};
+    if (csrfToken && options.method && options.method !== 'GET') headers[csrfToken.headerName] = csrfToken.token;
+    const response = await fetch(`/api${path}`, {...options, headers});
+    if (response.status === 401) { location.href='/login.html'; throw new Error('다시 로그인해주세요.'); }
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || '저장하지 못했어요. 앱 연결 상태를 확인해주세요.');
@@ -377,5 +382,6 @@
     try{[state.experiences,state.profile]=await Promise.all([api('/experiences'),api('/profile')]);state.loaded=true;render();navigate(location.hash.slice(1)||'archive');}
     catch(e){$('#experience-list').innerHTML=`<div class="error-state"><h3>기록을 불러오지 못했어요.</h3><p>앱이 실행 중인지 확인한 뒤 다시 시도해주세요.</p><button class="button secondary" data-retry>다시 불러오기</button></div>`;toast(e.message,true);}
   }
-  load();
+  $('#logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout',{method:'POST',headers:{[csrfToken.headerName]:csrfToken.token}}); location.href='/login.html'; });
+  refreshCsrf().then(load).catch(() => toast('서버에 연결할 수 없어요.', true));
 })();

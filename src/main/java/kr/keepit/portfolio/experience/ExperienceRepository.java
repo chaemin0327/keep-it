@@ -11,5 +11,8 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
     List<Experience> findAll(Sort sort);
     @Override @EntityGraph(attributePaths = "links")
     Optional<Experience> findById(Long id);
+    @EntityGraph(attributePaths = "links") List<Experience> findAllByOwner(String owner, Sort sort);
+    @EntityGraph(attributePaths = "links") Optional<Experience> findByIdAndOwner(Long id, String owner);
+    long deleteByOwnerAndDemoTrue(String owner);
     long deleteByDemoTrue();
 }

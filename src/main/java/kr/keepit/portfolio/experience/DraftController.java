@@ -41,7 +41,7 @@ public class DraftController {
         if (apiKey.isBlank()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Gemini API 키가 설정되지 않았어요. 서버 설정을 확인해주세요.");
         if (!model.matches("[a-zA-Z0-9._-]+")) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "AI 모델 설정을 확인해주세요.");
         var ids = new LinkedHashSet<>(request.experienceIds());
-        var selected = ids.stream().map(id -> experiences.findById(id).map(ExperienceView::from)
+        var selected = ids.stream().map(id -> experiences.findByIdAndOwner(id, org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName()).map(ExperienceView::from)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "선택한 경험을 찾을 수 없어요."))).toList();
         try {
             var evidence = selected.stream().map(e -> Map.of("id",e.id(), "title",e.title(),

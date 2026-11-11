@@ -11,14 +11,17 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class DraftControllerTest {
-    @Test void onlyChosenExperienceCanAppearInRecommendations() throws Exception {
+    @org.junit.jupiter.api.AfterEach void clearSecurity() { org.springframework.security.core.context.SecurityContextHolder.clearContext(); }
+    @Test @org.springframework.security.test.context.support.WithMockUser(username="test@example.com") void onlyChosenExperienceCanAppearInRecommendations() throws Exception {
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("test@example.com", "", List.of()));
         var repo = mock(ExperienceRepository.class);
         var client = mock(HttpClient.class);
         @SuppressWarnings("unchecked") HttpResponse<String> response = mock(HttpResponse.class);
         var request = new ExperienceRequest(ExperienceType.PROJECT,"테스트 경험","기관","", LocalDate.of(2025,1,1),null,false,"","역할","협업 기록","","", "",false,"","","",List.of(),"","");
         var experience = new Experience(request,false);
         experience.id=1L;
-        when(repo.findById(1L)).thenReturn(Optional.of(experience));
+        when(repo.findByIdAndOwner(1L,"test@example.com")).thenReturn(Optional.of(experience));
         when(client.send(any(HttpRequest.class),any(HttpResponse.BodyHandler.class))).thenReturn(response);
         when(response.statusCode()).thenReturn(200);
         var mapper = new ObjectMapper();
