@@ -81,4 +81,4 @@ Windows에서는 `mvnw.cmd spring-boot:run`을 사용합니다.
 
 기존 로그인 도입 이전의 경험과 프로필은 임의의 신규 계정에 자동으로 연결되지 않습니다. [기존 로컬 기록 가져오기](docs/deploy/README.md#기존-로컬-기록-가져오기) 절차를 사용하세요.
 
-로컬에서는 H2를 사용합니다. 운영용 PostgreSQL 및 SMTP 설정과 남은 공개 전 작업은 [배포 준비 문서](docs/deploy/README.md)를 확인하세요. 아직 실서비스 배포를 검증하지 않았습니다.
+로컬에서는 H2를 사용합니다. 운영용 PostgreSQL 및 이메일 발송 설정과 남은 공개 전 작업은 [배포 준비 문서](docs/deploy/README.md)를 확인하세요. 아직 실서비스 배포를 검증하지 않았습니다.

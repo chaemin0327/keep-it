@@ -31,6 +31,23 @@ public class ExperienceController {
         return ResponseEntity.created(URI.create("/api/experiences/" + view.id())).body(view);
     }
 
+    public record ImportRequest(@jakarta.validation.constraints.NotEmpty @jakarta.validation.constraints.Size(max=200)
+            List<@Valid @jakarta.validation.constraints.NotNull ExperienceRequest> experiences) {}
+
+    @PostMapping("/import")
+    @Transactional
+    public java.util.Map<String,Integer> importExperiences(@Valid @RequestBody ImportRequest request) {
+        var items=new java.util.ArrayList<Experience>();
+        for(var entry:request.experiences()) {
+            validate(entry);
+            var item=new Experience(entry,false);
+            item.owner=owner();
+            items.add(item);
+        }
+        repository.saveAll(items);
+        return java.util.Map.of("imported",items.size());
+    }
+
     @GetMapping("/{id}")
     public ExperienceView get(@PathVariable Long id) { return ExperienceView.from(find(id)); }
 

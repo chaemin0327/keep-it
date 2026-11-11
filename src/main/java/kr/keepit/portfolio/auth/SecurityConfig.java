@@ -15,8 +15,8 @@ public class SecurityConfig {
                 .map(a -> User.withUsername(a.email).password(a.passwordHash).disabled(Boolean.FALSE.equals(a.verified)).roles("USER").build())
                 .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
     }
-    @Bean SecurityFilterChain security(HttpSecurity http, AccountRepository accounts) throws Exception {
-        return http.addFilterBefore(new RequestRateLimitFilter(),org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+    @Bean SecurityFilterChain security(HttpSecurity http, AccountRepository accounts, org.springframework.jdbc.core.JdbcTemplate jdbc, @org.springframework.beans.factory.annotation.Value("${keepit.rate-limit.shared:false}") boolean sharedLimits) throws Exception {
+        return http.addFilterBefore(sharedLimits ? new RequestRateLimitFilter(jdbc) : new RequestRateLimitFilter(),org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new SessionVersionFilter(accounts),org.springframework.security.web.authentication.AnonymousAuthenticationFilter.class).authorizeHttpRequests(a -> a.requestMatchers("/api/auth/**", "/login.html", "/recover.html", "/auth.js", "/recover.js", "/style.css", "/brand-mark.svg", "/error").permitAll().anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint((req,res,ex) -> {
                     if(req.getRequestURI().startsWith("/api/")) res.sendError(401); else res.sendRedirect("/login.html");
