@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 @Component
+@org.springframework.context.annotation.Profile("!production")
 public class DemoData implements CommandLineRunner {
     private final ExperienceRepository experiences;
     private final ProfileRepository profiles;

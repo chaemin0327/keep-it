@@ -19,6 +19,8 @@
       if(registering) {
         const response=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json',[csrf.headerName]:csrf.token},body:JSON.stringify({email,password})});
         if(!response.ok) {const body=await response.json().catch(()=>({}));throw new Error(body.message||'가입하지 못했어요. 입력 내용을 확인해주세요.');}
+        const data=await response.json();
+        if(data.verificationRequired) { error.textContent='인증 메일을 보냈어요. 메일의 링크를 열어 인증을 마쳐주세요.'; return; }
       }
       csrf=await token();
       const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded',[csrf.headerName]:csrf.token},body:new URLSearchParams({username:email,password})});

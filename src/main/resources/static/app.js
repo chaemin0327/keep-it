@@ -382,6 +382,15 @@
     try{[state.experiences,state.profile]=await Promise.all([api('/experiences'),api('/profile')]);state.loaded=true;render();navigate(location.hash.slice(1)||'archive');}
     catch(e){$('#experience-list').innerHTML=`<div class="error-state"><h3>기록을 불러오지 못했어요.</h3><p>앱이 실행 중인지 확인한 뒤 다시 시도해주세요.</p><button class="button secondary" data-retry>다시 불러오기</button></div>`;toast(e.message,true);}
   }
+  $('#export-button').addEventListener('click', async () => {
+    try {
+      const [experiences, profile] = await Promise.all([api('/experiences'),api('/profile')]);
+      const file=new Blob([JSON.stringify({exportedAt:new Date().toISOString(), profile, experiences},null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(file), link=document.createElement('a');
+      link.href=url;link.download='keep-it-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      toast('내 기록을 파일로 저장했어요.');
+    } catch(e) {toast(e.message,true);}
+  });
   $('#logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout',{method:'POST',headers:{[csrfToken.headerName]:csrfToken.token}}); location.href='/login.html'; });
   refreshCsrf().then(load).catch(() => toast('서버에 연결할 수 없어요.', true));
 })();
