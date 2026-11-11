@@ -51,8 +51,16 @@ i[data-icon] { display: inline-flex; font-style: normal; }
 .category-nav { display: grid; gap: 2px; min-height: 0; overflow-y: auto; flex-shrink: 1; }
 .category-item { display: flex; gap: 11px; align-items: center; text-align: left; padding: 7px 14px; border-radius: 7px; font-size: 12px; color: var(--text); }
 .category-item:hover, .category-item.active { background: var(--surface); color: var(--accent); }
-.category-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
-.category-item.active .category-dot { background: var(--accent); }
+.category-dot { width: 8px; height: 8px; border-radius: 50%; background: #8898ae; }
+.category-item[data-filter="WORK"] .category-dot { background: #607fbd; }
+.category-item[data-filter="PROJECT"] .category-dot { background: #3799d3; }
+.category-item[data-filter="COMPETITION"] .category-dot { background: #ed9a51; }
+.category-item[data-filter="AWARD"] .category-dot { background: #d4a52c; }
+.category-item[data-filter="CERTIFICATE"] .category-dot { background: #53a989; }
+.category-item[data-filter="PAPER"] .category-dot { background: #9a80c8; }
+.category-item[data-filter="OVERSEAS"] .category-dot { background: #53abb1; }
+.category-item[data-filter="ACTIVITY"] .category-dot { background: #de8097; }
+.category-item[data-filter="EDUCATION"] .category-dot { background: #9c967c; }
 .category-count { flex-shrink: 0; margin-left: auto; font-size: 11px; color: var(--muted); }
 .sidebar-bottom { margin-top: auto; padding-top: 24px; }
 .profile-switch { border-top: 1px solid var(--line); margin-top: 20px; padding: 19px 7px 0; display: flex; width: 100%; align-items: center; gap: 10px; text-align: left; }
@@ -174,6 +182,8 @@ main { padding: 32px 42px 32px; max-width: 1550px; margin: 0 auto; }
 .timeline-year:last-child .timeline-year-header::after { right: 0; }
 .timeline-year-header::before { content: ''; position: absolute; left: 0; bottom: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); z-index: 1; }
 .year-label { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.8px; color: var(--ink); }
+.timeline-half { margin-left: 9px; font-size: 14px; font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.timeline-empty { margin: 24px 0 0; color: var(--muted); font-size: 13px; }
 .timeline-items { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 14px; }
 .timeline-item { min-width: 0; }
 .timeline-card { display: flex; flex-direction: column; align-items: stretch; gap: 12px; border: 1px solid var(--line); border-radius: 10px; background: white; padding: 18px; text-align: left; width: 100%; min-height: 150px; }
