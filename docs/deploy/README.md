@@ -17,6 +17,7 @@ KEEPIT_DATABASE_PASSWORD=...
 KEEPIT_MAIL_API_KEY=...
 KEEPIT_MAIL_FROM=...
 KEEPIT_PUBLIC_URL=https://실제-사이트-주소
+KEEPIT_RATE_LIMIT_RENDER_CLIENT_IP=true
 GEMINI_API_KEY=...
 ```
 
@@ -25,7 +26,7 @@ GEMINI_API_KEY=...
 ## 기능과 남은 작업
 
 - 이메일 인증 및 비밀번호 재설정 링크는 30분 동안 한 번만 쓸 수 있습니다. 비밀번호를 변경하면 기존 로그인 세션이 무효화됩니다.
-- 운영 환경의 로그인 및 AI 요청 횟수 제한은 PostgreSQL에 저장되어 서버 간 공유됩니다. 프록시 뒤에서 모든 사용자가 같은 주소로 보일 수 있으므로 실제 호스팅 환경에서 검증해야 합니다.
+- 운영 환경의 로그인 및 AI 요청 횟수 제한은 PostgreSQL에 저장되어 서버 간 공유됩니다. `KEEPIT_RATE_LIMIT_RENDER_CLIENT_IP=true`는 Render의 공개 서비스에서만 설정합니다. 이 설정은 Render가 덮어쓰는 `CF-Connecting-IP` 헤더를 신뢰하므로 직접 공개하거나 다른 프록시를 사용하는 환경에서 활성화하면 안 됩니다. 실제 Render 환경에서 주소 전달과 제한 동작을 검증해야 합니다.
 - `내 기록 백업`으로 경험과 프로필을 JSON으로 내려받고 `백업 가져오기`로 경험을 현재 계정에 추가할 수 있습니다. 프로필은 자동 복원되지 않으며 서버 DB 백업을 대체하지 않습니다.
 - 기존 로컬 H2 데이터는 아래 수동 절차로 계정에 연결한 뒤 JSON을 통해 온라인 계정에 가져올 수 있습니다. 실제 이관 전 별도 백업과 확인이 필요합니다.
 - 실제 메일 발송, 실제 호스팅 환경, 동시 요청, 접근 통제 및 보안 검토를 마치기 전에는 실사용자를 받지 마세요. 무료 서비스는 사용량 제한과 중단 가능성이 있습니다.
@@ -51,7 +52,7 @@ openssl req -x509 -newkey rsa:3072 -aes256 -keyout keepit-backup-private.pem -ou
 chmod 600 keepit-backup-private.pem
 ```
 
-GitHub 저장소의 Actions secrets에 `BACKUP_DATABASE_URL`(PostgreSQL 연결 URI), `BACKUP_CERT_PEM`(공개 인증서 내용)을 설정합니다. DB 제공자의 별도 CA 인증서가 필요하면 `BACKUP_DB_CA_PEM`도 설정합니다. 연결은 TLS 서버 인증을 검증하도록 설정되어 있습니다. 비밀번호와 개인 키를 출력하거나 커밋하지 마세요. 데이터베이스 URI에는 백업 대상 스키마에 필요한 읽기 권한만 가진 계정을 사용합니다.
+GitHub 저장소의 Actions secrets에 `BACKUP_DATABASE_URL`(PostgreSQL 연결 URI), `BACKUP_CERT_PEM`(공개 인증서 내용)을 설정합니다. DB 제공자의 별도 CA 인증서가 필요하면 `BACKUP_DB_CA_PEM`도 설정합니다. 수동 실행으로 암호화 및 복원을 검증한 뒤 Actions 변수 `KEEPIT_BACKUP_ENABLED`를 `true`로 설정해야 예약 백업이 시작됩니다. 연결은 TLS 서버 인증을 검증하도록 설정되어 있습니다. 비밀번호와 개인 키를 출력하거나 커밋하지 마세요. 데이터베이스 URI에는 백업 대상 스키마에 필요한 읽기 권한만 가진 계정을 사용합니다.
 
 복구 시험은 반드시 비어 있는 별도 DB에서 수행합니다. Actions에서 `.p7m` 파일을 내려받은 뒤 본인의 인증서와 개인 키로 복호화하고 `pg_restore`를 사용합니다. 실서비스 DB에 덮어쓰기 전에 대상과 백업 시점을 확인하세요.
 

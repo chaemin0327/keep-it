@@ -11,15 +11,16 @@ public class RequestRateLimitFilter extends OncePerRequestFilter {
     private record Window(long until,int count) {}
     private final ConcurrentHashMap<String,Window> windows=new ConcurrentHashMap<>();
     private final org.springframework.jdbc.core.JdbcTemplate jdbc;
-    public RequestRateLimitFilter() { this.jdbc=null; }
-    public RequestRateLimitFilter(org.springframework.jdbc.core.JdbcTemplate jdbc) { this.jdbc=jdbc; }
+    private final boolean trustRenderClientIp;
+    public RequestRateLimitFilter() { this(null, false); }
+    public RequestRateLimitFilter(org.springframework.jdbc.core.JdbcTemplate jdbc, boolean trustRenderClientIp) { this.jdbc=jdbc; this.trustRenderClientIp=trustRenderClientIp; }
     @Override protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response,FilterChain chain) throws ServletException,IOException {
         String path=request.getRequestURI();
         boolean auth=request.getMethod().equals("POST") && (path.equals("/api/auth/login") || path.equals("/api/auth/register") || path.startsWith("/api/auth/password/") || path.equals("/api/auth/verify/resend"));
         boolean draft=request.getMethod().equals("POST") && path.equals("/api/drafts");
         if(!auth && !draft) {chain.doFilter(request,response);return;}
         long now=System.currentTimeMillis();
-        String key=request.getRemoteAddr()+":"+(auth?"auth":"draft");
+        String key=clientIp(request)+":"+(auth?"auth":"draft");
         Window window;
         if(jdbc != null) {
             long until=(now / 60000 + 1) * 60000;
@@ -36,5 +37,15 @@ public class RequestRateLimitFilter extends OncePerRequestFilter {
         }
         if(window.count()>(auth?20:10)) {response.setHeader("Retry-After",Long.toString(Math.max(1,(window.until()-now+999)/1000)));response.sendError(429);return;}
         chain.doFilter(request,response);
+    }
+    private String clientIp(HttpServletRequest request) {
+        if (trustRenderClientIp) {
+            String value=request.getHeader("CF-Connecting-IP");
+            if(value!=null && value.length()<=45 && value.matches("[0-9a-fA-F:.]+")) {
+                try { return java.net.InetAddress.getByName(value).getHostAddress(); }
+                catch(java.net.UnknownHostException ignored) { }
+            }
+        }
+        return request.getRemoteAddr();
     }
 }
