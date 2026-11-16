@@ -48,7 +48,7 @@ GEMINI_API_KEY=...
 운영자가 개인 기기에서 복구용 키와 인증서를 만들고 안전하게 보관합니다. 실제 서비스용 키와 인증서는 소스 코드나 채팅에 올리지 마세요.
 
 ```sh
-openssl req -x509 -newkey rsa:3072 -aes256 -keyout keepit-backup-private.pem -out keepit-backup-public.pem -subj '/CN=keepit-backup' -days 3650
+openssl req -x509 -newkey rsa:3072 -cipher aes-256-cbc -keyout keepit-backup-private.pem -out keepit-backup-public.pem -subj '/CN=keepit-backup' -days 3650
 chmod 600 keepit-backup-private.pem
 ```
 
