@@ -1,6 +1,9 @@
 package kr.keepit.portfolio.auth;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import kr.keepit.portfolio.profile.EducationData;
+import kr.keepit.portfolio.profile.UserProfile;
+import kr.keepit.portfolio.profile.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -17,14 +20,14 @@ public class AuthController {
     private final AccountRepository accounts;
     private final PasswordEncoder encoder;
     private final EmailTokenService tokens;
-    private final kr.keepit.portfolio.profile.UserProfileRepository profiles;
+    private final UserProfileRepository profiles;
     private final boolean verificationRequired;
-    AuthController(AccountRepository accounts,PasswordEncoder encoder,EmailTokenService tokens,kr.keepit.portfolio.profile.UserProfileRepository profiles,
+    AuthController(AccountRepository accounts,PasswordEncoder encoder,EmailTokenService tokens,UserProfileRepository profiles,
                    @Value("${keepit.auth.require-verification:false}") boolean verificationRequired) {
         this.accounts=accounts;this.encoder=encoder;this.tokens=tokens;this.profiles=profiles;this.verificationRequired=verificationRequired;
     }
     record Registration(@NotBlank @Email @Size(max=160) String email,@NotBlank @Size(min=10,max=72) String password,
-                        @Size(max=50) String name, @Size(max=160) String headline) {}
+                        @Size(max=50) String name, @Size(max=160) String headline, @Valid EducationData education) {}
     record EmailRequest(@NotBlank @Email @Size(max=160) String email) {}
     record TokenRequest(@NotBlank String token) {}
     record ResetRequest(@NotBlank String token,@NotBlank @Size(min=10,max=72) String password) {}
@@ -38,7 +41,9 @@ public class AuthController {
         try {
             Account account=new Account(email,encoder.encode(input.password())); account.verified=!verificationRequired;
             accounts.saveAndFlush(account);
-            if(input.name()!=null) profiles.save(kr.keepit.portfolio.profile.UserProfile.forRegistration(email,input.name(),input.headline()));
+            if (input.name() != null || input.education() != null) {
+                profiles.save(UserProfile.forRegistration(email, input.name(), input.headline(), input.education()));
+            }
             if(verificationRequired) tokens.send(email,"VERIFY");
         } catch(org.springframework.dao.DataIntegrityViolationException e) {throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 가입한 이메일이에요.");}
         return java.util.Map.of("verificationRequired",verificationRequired);

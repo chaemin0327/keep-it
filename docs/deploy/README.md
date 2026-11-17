@@ -5,6 +5,7 @@
 ## PostgreSQL
 
 - 별도의 PostgreSQL DB를 준비하고, 관리자가 `postgres-schema.sql`을 **새 빈 DB에 한 번만** 실행합니다. 이 SQL은 기존 데이터를 옮기는 도구가 아닙니다.
+- 기존 운영 DB를 업데이트할 때는 새 버전을 배포하기 전에 필요한 `supabase/migrations/` SQL을 적용합니다. 학력 정보 마이그레이션은 기존 프로필에 비어 있는 학력 항목을 추가합니다.
 - Supabase 사용 시 `keepit` 스키마를 Data API에 노출하지 마세요. 스키마 접근 권한을 제한하고 백엔드 전용 DB 계정을 따로 만들어 필요한 권한만 주세요. 공개 anon/authenticated 역할에 접근 권한을 주지 마세요.
 - DB 연결은 SSL 및 서버 인증서를 검증해야 합니다. Supabase 대시보드의 연결 정보와 CA 인증서로 JDBC URL의 `sslmode=verify-full` 및 `sslrootcert`를 구성하세요. 배포 플랫폼에서 IPv4만 제공하면 세션 풀러를 사용합니다.
 - 다음 설정을 배포 서비스의 비공개 환경 변수로 지정합니다. 값을 저장소나 채팅에 적지 마세요.

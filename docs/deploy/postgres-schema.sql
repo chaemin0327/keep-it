@@ -16,6 +16,7 @@ CREATE TABLE keepit.experience (
 CREATE INDEX experience_owner_start_date ON keepit.experience (owner,start_date);
 CREATE TABLE keepit.experience_links (experience_id bigint NOT NULL REFERENCES keepit.experience(id), url varchar(1000) NOT NULL, link_order integer NOT NULL, PRIMARY KEY(experience_id,link_order));
 CREATE TABLE keepit.profile (id bigint PRIMARY KEY, bio varchar(2000), email varchar(160), headline varchar(160), name varchar(50));
-CREATE TABLE keepit.user_profile (owner varchar(160) PRIMARY KEY, bio varchar(2000), email varchar(160), headline varchar(160), name varchar(50));
+CREATE TABLE keepit.user_profile (owner varchar(160) PRIMARY KEY, bio varchar(2000), email varchar(160), headline varchar(160), name varchar(50),
+    school varchar(120), education_level varchar(30), enrollment_status varchar(30), major varchar(120));
 CREATE TABLE keepit.request_limits (rate_key varchar(64) PRIMARY KEY, expires_at bigint NOT NULL, request_count integer NOT NULL);
 REVOKE ALL ON SCHEMA keepit FROM PUBLIC;

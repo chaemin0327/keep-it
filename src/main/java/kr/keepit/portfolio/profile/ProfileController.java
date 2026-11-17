@@ -13,8 +13,8 @@ public class ProfileController {
 
     public record ProfileData(@NotBlank @Size(max = 50) String name,
             @Size(max = 160) String headline, @Size(max = 2000) String bio,
-            @Email @Size(max = 160) String email) {
-        static ProfileData from(UserProfile p) { return new ProfileData(p.name, p.headline, p.bio, p.email); }
+            @Email @Size(max = 160) String email, @Valid EducationData education) {
+        static ProfileData from(UserProfile p) { return new ProfileData(p.name, p.headline, p.bio, p.email, p.education()); }
     }
 
     @GetMapping
@@ -27,6 +27,7 @@ public class ProfileController {
         profile.name = request.name().strip();
         profile.headline = clean(request.headline()); profile.bio = clean(request.bio());
         profile.email = clean(request.email());
+        profile.updateEducation(request.education());
         return ProfileData.from(profile);
     }
 
