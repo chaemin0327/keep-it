@@ -87,7 +87,7 @@
     const headers = {'Content-Type':'application/json', ...(options.headers || {})};
     if (csrfToken && options.method && options.method !== 'GET') headers[csrfToken.headerName] = csrfToken.token;
     const response = await fetch(`/api${path}`, {...options, headers});
-    if (response.status === 401) { location.href='/login.html'; throw new Error('다시 로그인해주세요.'); }
+    if (response.status === 401) { location.href='/login.html?mode=login'; throw new Error('다시 로그인해주세요.'); }
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || '저장하지 못했어요. 앱 연결 상태를 확인해주세요.');
@@ -406,6 +406,6 @@
     });
     $('#confirm-yes').textContent='가져오기';
   });
-  $('#logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout',{method:'POST',headers:{[csrfToken.headerName]:csrfToken.token}}); location.href='/login.html'; });
+  $('#logout-button').addEventListener('click', async () => { await fetch('/api/auth/logout',{method:'POST',headers:{[csrfToken.headerName]:csrfToken.token}}); location.href='/login.html?mode=login'; });
   refreshCsrf().then(load).catch(() => toast('서버에 연결할 수 없어요.', true));
 })();
