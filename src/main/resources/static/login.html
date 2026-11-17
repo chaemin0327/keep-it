@@ -2,13 +2,44 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>회원가입 · keep it</title><link rel="icon" href="/brand-mark.svg"><link rel="stylesheet" href="/style.css"><script src="/auth.js" defer></script></head>
 <body class="auth-page"><main class="auth-card">
   <a class="auth-brand" href="/login.html"><img src="/brand-mark.svg" alt="" width="34" height="34"><strong>keep it<span> ·</span></strong></a>
-  <h1 id="auth-title">경험을 모을 준비가 됐나요?</h1><p id="auth-subtitle">이메일로 나만의 공간을 만들어보세요.</p>
+  <h1 id="auth-title">경험을 모을 준비가 됐나요?</h1><p id="auth-subtitle">기본 정보를 입력하고 나만의 기록을 시작해 보세요.</p>
   <form id="auth-form">
     <label class="field" id="name-field">이름<input name="name" maxlength="50" autocomplete="name" placeholder="이름을 입력해주세요" required></label>
     <label class="field">이메일<input name="email" type="email" maxlength="160" autocomplete="email" required placeholder="이메일을 입력해주세요"></label>
     <label class="field">비밀번호<input name="password" type="password" minlength="10" maxlength="72" autocomplete="new-password" required placeholder="10자 이상 입력해주세요"></label>
     <label class="field" id="confirm-field">비밀번호 확인<input name="confirmPassword" type="password" minlength="10" maxlength="72" autocomplete="new-password" required placeholder="비밀번호를 다시 입력해주세요"></label>
     <label class="field" id="headline-field">관심 분야 또는 한 줄 소개 <span>(선택)</span><input name="headline" maxlength="160" placeholder="예: 백엔드 개발자를 꿈꾸는 대학생"></label>
+    <fieldset class="education-fields full" id="registration-education">
+      <legend>학력 정보 (선택)</legend>
+      <div class="education-grid">
+        <label class="field full">학교명<input name="school" maxlength="120" placeholder="예: 부산대학교"></label>
+        <label class="field">현재·최종 학력
+          <select name="level">
+            <option value="">선택 안 함</option>
+            <option>중학교</option>
+            <option>고등학교</option>
+            <option>전문대학</option>
+            <option>대학교</option>
+            <option>대학원(석사)</option>
+            <option>대학원(박사)</option>
+            <option>기타</option>
+          </select>
+        </label>
+        <label class="field">학적 상태
+          <select name="status">
+            <option value="">선택 안 함</option>
+            <option>재학</option>
+            <option>휴학</option>
+            <option>졸업 예정</option>
+            <option>졸업</option>
+            <option>수료</option>
+            <option>중퇴</option>
+            <option>기타</option>
+          </select>
+        </label>
+        <label class="field full">전공<input name="major" maxlength="120" placeholder="예: 정보컴퓨터공학"></label>
+      </div>
+    </fieldset>
     <p id="auth-error" class="form-error" role="alert"></p><button class="button primary auth-submit" id="auth-submit" type="submit">회원가입</button>
   </form>
   <p class="auth-switch" id="recover-link" hidden><a href="/recover.html">비밀번호를 잊었나요? / 인증 메일 다시 받기</a></p>

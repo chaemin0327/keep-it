@@ -88,7 +88,39 @@
     </form>
   </dialog>
   <dialog id="detail-dialog" class="modal detail-modal" aria-labelledby="detail-title"><div id="detail-content"></div></dialog>
-  <dialog id="profile-dialog" class="modal profile-modal" aria-labelledby="profile-title"><form id="profile-form"><div class="modal-header"><div><h2 id="profile-title">프로필 수정</h2></div><button class="icon-button" type="button" data-close aria-label="닫기"><i data-icon="close"></i></button></div><div class="modal-body form-grid"><label class="field full">이름 *<input name="name" maxlength="50" required></label><label class="field full">한 줄 소개<input name="headline" maxlength="160" placeholder="어떤 사람으로 기억되고 싶나요?"></label><label class="field full">자기소개<textarea name="bio" rows="4" maxlength="2000"></textarea></label><label class="field full">이메일<input name="email" type="email" maxlength="160" placeholder="hello@example.com"></label><p class="form-error full" role="alert"></p></div><div class="modal-footer"><span>포트폴리오에 표시됩니다.</span><button class="button primary" type="submit">프로필 저장</button></div></form></dialog>
+  <dialog id="profile-dialog" class="modal profile-modal" aria-labelledby="profile-title"><form id="profile-form"><div class="modal-header"><div><h2 id="profile-title">프로필 수정</h2></div><button class="icon-button" type="button" data-close aria-label="닫기"><i data-icon="close"></i></button></div><div class="modal-body form-grid"><label class="field full">이름 *<input name="name" maxlength="50" required></label><label class="field full">한 줄 소개<input name="headline" maxlength="160" placeholder="어떤 사람으로 기억되고 싶나요?"></label><label class="field full">자기소개<textarea name="bio" rows="4" maxlength="2000"></textarea></label><label class="field full">이메일<input name="email" type="email" maxlength="160" placeholder="hello@example.com"></label>
+    <fieldset class="education-fields full">
+      <legend>학력 정보</legend>
+      <div class="education-grid">
+        <label class="field full">학교명<input name="school" maxlength="120" placeholder="예: 부산대학교"></label>
+        <label class="field">현재·최종 학력
+          <select name="level">
+            <option value="">선택 안 함</option>
+            <option>중학교</option>
+            <option>고등학교</option>
+            <option>전문대학</option>
+            <option>대학교</option>
+            <option>대학원(석사)</option>
+            <option>대학원(박사)</option>
+            <option>기타</option>
+          </select>
+        </label>
+        <label class="field">학적 상태
+          <select name="status">
+            <option value="">선택 안 함</option>
+            <option>재학</option>
+            <option>휴학</option>
+            <option>졸업 예정</option>
+            <option>졸업</option>
+            <option>수료</option>
+            <option>중퇴</option>
+            <option>기타</option>
+          </select>
+        </label>
+        <label class="field full">전공<input name="major" maxlength="120" placeholder="예: 정보컴퓨터공학"></label>
+      </div>
+    </fieldset>
+    <p class="form-error full" role="alert"></p></div><div class="modal-footer"><span>포트폴리오에 표시됩니다.</span><button class="button primary" type="submit">프로필 저장</button></div></form></dialog>
   <dialog id="confirm-dialog" class="modal confirm-modal" aria-labelledby="confirm-title"><div class="modal-header"><h2 id="confirm-title">기록을 삭제할까요?</h2><button class="icon-button" data-close aria-label="닫기"><i data-icon="close"></i></button></div><div class="modal-body"><p id="confirm-message"></p><p class="form-error" role="alert"></p></div><div class="modal-footer"><button class="button secondary" data-close>취소</button><button class="button danger" id="confirm-yes">삭제하기</button></div></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>

@@ -208,8 +208,10 @@
   }
   function renderPortfolio() {
     const p = state.profile, list = orderedPortfolio();
+    const { school, level, status, major } = p.education ?? {};
+    const education = [school, level, major, status].filter(Boolean).join(' · ');
     $('#portfolio-order').innerHTML = list.length ? `<ol class="portfolio-order-list">${list.map((e,i)=>`<li><div class="portfolio-order-info"><strong>${escape(e.title)}</strong><span>${escape(categoryLabel(e))} · ${escape(period(e))}</span></div><div class="portfolio-order-actions"><button type="button" data-move-id="${e.id}" data-move-direction="-1" aria-label="${escape(e.title)} 위로 이동" ${i===0?'disabled':''}>↑</button><button type="button" data-move-id="${e.id}" data-move-direction="1" aria-label="${escape(e.title)} 아래로 이동" ${i===list.length-1?'disabled':''}>↓</button><button type="button" data-star="${e.id}" aria-label="${escape(e.title)} 포트폴리오에서 빼기">빼기</button></div></li>`).join('')}</ol>` : '<p class="portfolio-empty-note">담은 경험이 없어요. 경험 목록에서 별표를 눌러 추가해 주세요.</p>';
-    $('#portfolio-sheet').innerHTML = `<header class="portfolio-header"><h1>${escape(p.name)}</h1><p class="portfolio-headline">${escape(p.headline)}</p>${p.bio?`<p class="portfolio-bio">${escape(p.bio)}</p>`:''}${p.email?`<a class="portfolio-email" href="mailto:${escape(p.email)}">${escape(p.email)}</a>`:''}</header><h2 class="portfolio-section-title">주요 경험 <span>· ${list.length}</span></h2>${list.length ? list.map(e => `<section class="portfolio-item"><div class="portfolio-date">${escape(period(e))}</div><div>${badge(e)}<h3>${escape(e.title)}</h3><p class="item-meta">${escape([e.organization,e.location,e.role].filter(Boolean).join(' · '))}</p>${e.participants?`<p class="item-meta">함께한 사람 · ${escape(e.participants)}</p>`:''}${e.description?`<p>${escape(e.description)}</p>`:''}${e.challenge?`<p><strong>어려움과 해결</strong> · ${escape(e.challenge)}</p>`:''}${resultHtml(e)}${e.outcome?`<p class="item-outcome">${escape(e.outcome)}</p>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksHtml(e)}</div></section>`).join('') : '<div class="empty-state"><h3>아직 선택한 경험이 없어요</h3><p>카드의 별표를 눌러 추가하세요.</p></div>'}<footer class="portfolio-end"><span>keep it<img class="portfolio-brand-mark" src="/brand-mark.svg" alt="" width="20" height="20"></span></footer>`;
+    $('#portfolio-sheet').innerHTML = `<header class="portfolio-header"><h1>${escape(p.name)}</h1><p class="portfolio-headline">${escape(p.headline)}</p>${education ? `<p class="portfolio-education">${escape(education)}</p>` : ''}${p.bio?`<p class="portfolio-bio">${escape(p.bio)}</p>`:''}${p.email?`<a class="portfolio-email" href="mailto:${escape(p.email)}">${escape(p.email)}</a>`:''}</header><h2 class="portfolio-section-title">주요 경험 <span>· ${list.length}</span></h2>${list.length ? list.map(e => `<section class="portfolio-item"><div class="portfolio-date">${escape(period(e))}</div><div>${badge(e)}<h3>${escape(e.title)}</h3><p class="item-meta">${escape([e.organization,e.location,e.role].filter(Boolean).join(' · '))}</p>${e.participants?`<p class="item-meta">함께한 사람 · ${escape(e.participants)}</p>`:''}${e.description?`<p>${escape(e.description)}</p>`:''}${e.challenge?`<p><strong>어려움과 해결</strong> · ${escape(e.challenge)}</p>`:''}${resultHtml(e)}${e.outcome?`<p class="item-outcome">${escape(e.outcome)}</p>`:''}<div class="card-tags">${tagHtml(e.tags,30)}</div>${linksHtml(e)}</div></section>`).join('') : '<div class="empty-state"><h3>아직 선택한 경험이 없어요</h3><p>카드의 별표를 눌러 추가하세요.</p></div>'}<footer class="portfolio-end"><span>keep it<img class="portfolio-brand-mark" src="/brand-mark.svg" alt="" width="20" height="20"></span></footer>`;
   }
   function render() {
     renderStats(); renderFilters(); renderExperiences(); renderTimeline(); renderPortfolio();
@@ -372,8 +374,37 @@
     }catch(e){$('#form-error').textContent=e.message;}finally{button.disabled=false;}
   });
   $('#clear-demo').addEventListener('click',()=>confirm('예시 기록을 비울까요?','처음에 들어 있던 가상의 예시만 삭제해요. 직접 추가한 경험은 그대로 남아요.',async()=>{await api('/experiences/demo',{method:'DELETE'});state.experiences=state.experiences.filter(e=>!e.demo);render();toast('이제 나만의 경험을 채워보세요.');}));
-  $('#profile-button').addEventListener('click',()=>{if(!state.loaded)return;const form=$('#profile-form');Object.entries(state.profile).forEach(([k,v])=>{if(form.elements[k])form.elements[k].value=v;});$('#profile-form .form-error').textContent='';showDialog('#profile-dialog');});
-  $('#profile-form').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');button.disabled=true;try{state.profile=await api('/profile',{method:'PUT',body:JSON.stringify(Object.fromEntries(new FormData(form)))});render();$('#profile-dialog').close();toast('프로필을 저장했어요.');}catch(e){form.querySelector('.form-error').textContent=e.message;}finally{button.disabled=false;}});
+  $('#profile-button').addEventListener('click', () => {
+    if (!state.loaded) return;
+    const form = $('#profile-form');
+    form.reset();
+    const { education, ...profile } = state.profile;
+    for (const [name, value] of Object.entries({ ...profile, ...education })) {
+      if (form.elements[name]) form.elements[name].value = value ?? '';
+    }
+    form.querySelector('.form-error').textContent = '';
+    showDialog('#profile-dialog');
+  });
+  $('#profile-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = form.querySelector('[type="submit"]');
+    button.disabled = true;
+    try {
+      const { school, level, status, major, ...profile } = Object.fromEntries(new FormData(form));
+      state.profile = await api('/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ ...profile, education: { school, level, status, major } })
+      });
+      render();
+      $('#profile-dialog').close();
+      toast('프로필을 저장했어요.');
+    } catch (error) {
+      form.querySelector('.form-error').textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
   $('#menu-button').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
   $('#portfolio-edit-profile').addEventListener('click',()=>$('#profile-button').click());
   $('#print-button').addEventListener('click',()=>window.print());
