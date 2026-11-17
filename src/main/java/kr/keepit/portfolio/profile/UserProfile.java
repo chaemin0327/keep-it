@@ -9,4 +9,10 @@ public class UserProfile {
     @Column(length=160) String email="";
     protected UserProfile() {}
     UserProfile(String owner) { this.owner=owner; }
+    public static UserProfile forRegistration(String owner, String name, String headline) {
+        var profile = new UserProfile(owner);
+        profile.name = name.strip();
+        if (headline != null && !headline.isBlank()) profile.headline = headline.strip();
+        return profile;
+    }
 }

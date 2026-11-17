@@ -23,8 +23,10 @@ class EmailAccountTests {
     @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @MockitoBean EmailDelivery mail;
     @Test void verifyResetAndSingleUse() throws Exception {
-        mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("email","user@example.test","password","first-password-123"))))
+        mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("email","user@example.test","password","first-password-123","name","  채민  ","headline"," 백엔드 개발자 "))))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.verificationRequired").value(true));
+        assertThat(jdbc.queryForObject("select name from user_profile where owner = ?", String.class, "user@example.test")).isEqualTo("채민");
+        assertThat(jdbc.queryForObject("select headline from user_profile where owner = ?", String.class, "user@example.test")).isEqualTo("백엔드 개발자");
         mvc.perform(post("/api/auth/login").with(csrf()).param("username","user@example.test").param("password","first-password-123")).andExpect(status().isUnauthorized());
         var captured=org.mockito.ArgumentCaptor.forClass(String.class);verify(mail).send(eq("user@example.test"),anyString(),captured.capture());
         String verifyToken=captured.getValue().split("#verify/")[1].trim();
@@ -40,6 +42,12 @@ class EmailAccountTests {
         mvc.perform(get("/api/experiences").session(session)).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/auth/login").with(csrf()).param("username","user@example.test").param("password","first-password-123")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/auth/login").with(csrf()).param("username","user@example.test").param("password","new-password-456")).andExpect(status().isNoContent());
+    }
+    @Test void blankNameIsRejectedBeforeCreatingAnAccount() throws Exception {
+        mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("email","blank@example.test","password","first-password-123","name","   "))))
+                .andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("select count(*) from accounts where email = ?", Long.class, "blank@example.test")).isZero();
     }
     @Test void expiredTokensAreRejectedAndStoredAsHashes() throws Exception {
         mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON)

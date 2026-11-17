@@ -1,23 +1,33 @@
 'use strict';
 (() => {
   const form=document.querySelector('#auth-form'), error=document.querySelector('#auth-error');
-  let registering=false;
+  let registering=new URLSearchParams(location.search).get('mode')!=='login';
   const token=async()=>await (await fetch('/api/auth/csrf')).json();
-  document.querySelector('#auth-switch').addEventListener('click',()=>{
-    registering=!registering; error.textContent='';
+  const renderMode=()=>{
     document.querySelector('#auth-title').textContent=registering?'경험을 모을 준비가 됐나요?':'다시 만나서 반가워요';
     document.querySelector('#auth-subtitle').textContent=registering?'이메일로 나만의 공간을 만들어보세요.':'로그인하고 나의 경험을 이어서 기록해요.';
     document.querySelector('#auth-submit').textContent=registering?'회원가입':'로그인';
     document.querySelector('#auth-switch-label').textContent=registering?'이미 계정이 있나요?':'아직 계정이 없나요?';
     document.querySelector('#auth-switch').textContent=registering?'로그인':'회원가입';
     form.elements.password.autocomplete=registering?'new-password':'current-password';
+    for (const name of ['name','confirmPassword','headline']) form.elements[name].disabled=!registering;
+    for (const id of ['name-field','confirm-field','headline-field']) document.querySelector('#'+id).hidden=!registering;
+    document.querySelector('#recover-link').hidden=registering;
+    document.title=(registering?'회원가입':'로그인')+' · keep it';
+  };
+  renderMode();
+  document.querySelector('#auth-switch').addEventListener('click',()=>{
+    registering=!registering; error.textContent=''; renderMode();
   });
   form.addEventListener('submit',async e=>{
     e.preventDefault(); error.textContent=''; const button=document.querySelector('#auth-submit');button.disabled=true;
     try {
-      let csrf=await token(); const email=form.elements.email.value.trim().toLowerCase(), password=form.elements.password.value;
+      const email=form.elements.email.value.trim().toLowerCase(), password=form.elements.password.value;
+      if(registering && !form.elements.name.value.trim()) throw new Error('이름을 입력해주세요.');
+      if(registering && password!==form.elements.confirmPassword.value) throw new Error('비밀번호가 서로 일치하지 않아요.');
+      let csrf=await token();
       if(registering) {
-        const response=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json',[csrf.headerName]:csrf.token},body:JSON.stringify({email,password})});
+        const response=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json',[csrf.headerName]:csrf.token},body:JSON.stringify({email,password,name:form.elements.name.value.trim(),headline:form.elements.headline.value.trim()})});
         if(!response.ok) {const body=await response.json().catch(()=>({}));throw new Error(body.message||'가입하지 못했어요. 입력 내용을 확인해주세요.');}
         const data=await response.json();
         if(data.verificationRequired) { error.textContent='인증 메일을 보냈어요. 메일의 링크를 열어 인증을 마쳐주세요.'; return; }
