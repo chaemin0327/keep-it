@@ -23,9 +23,13 @@ class EmailAccountTests {
     @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @MockitoBean EmailDelivery mail;
     @Test void verifyResetAndSingleUse() throws Exception {
-        mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("email","user@example.test","password","first-password-123","name","  채민  ","headline"," 백엔드 개발자 "))))
+        var education = Map.of("school", "  예시대학교  ", "level", "대학교", "status", "재학", "major", "컴퓨터공학");
+        var registration = Map.of("email", "user@example.test", "password", "first-password-123",
+                "name", "  예시 사용자  ", "headline", " 백엔드 개발자 ", "education", education);
+        mvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(registration)))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.verificationRequired").value(true));
-        assertThat(jdbc.queryForObject("select name from user_profile where owner = ?", String.class, "user@example.test")).isEqualTo("채민");
+        assertThat(jdbc.queryForObject("select name from user_profile where owner = ?", String.class, "user@example.test")).isEqualTo("예시 사용자");
         assertThat(jdbc.queryForObject("select headline from user_profile where owner = ?", String.class, "user@example.test")).isEqualTo("백엔드 개발자");
         mvc.perform(post("/api/auth/login").with(csrf()).param("username","user@example.test").param("password","first-password-123")).andExpect(status().isUnauthorized());
         var captured=org.mockito.ArgumentCaptor.forClass(String.class);verify(mail).send(eq("user@example.test"),anyString(),captured.capture());
@@ -34,6 +38,20 @@ class EmailAccountTests {
         mvc.perform(post("/api/auth/verify").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("token",verifyToken)))).andExpect(status().isBadRequest());
         var login=mvc.perform(post("/api/auth/login").with(csrf()).param("username","user@example.test").param("password","first-password-123")).andExpect(status().isNoContent()).andReturn();
         var session=(org.springframework.mock.web.MockHttpSession)login.getRequest().getSession(false);
+        mvc.perform(get("/api/profile").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.education.school").value("예시대학교"))
+                .andExpect(jsonPath("$.education.level").value("대학교"))
+                .andExpect(jsonPath("$.education.status").value("재학"))
+                .andExpect(jsonPath("$.education.major").value("컴퓨터공학"));
+        mvc.perform(put("/api/profile").session(session).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("name", "예시 사용자"))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.education.school").value("예시대학교"));
+        var updatedEducation = Map.of("school", "예시대학교", "level", "대학교", "status", "졸업", "major", "");
+        mvc.perform(put("/api/profile").session(session).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("name", "예시 사용자", "education", updatedEducation))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.education.status").value("졸업"))
+                .andExpect(jsonPath("$.education.major").isEmpty());
         mvc.perform(post("/api/auth/password/forgot").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"user@example.test\"}")).andExpect(status().isNoContent());
         verify(mail,times(2)).send(eq("user@example.test"),anyString(),captured.capture());
         String resetToken=captured.getAllValues().getLast().split("#reset/")[1].trim();
