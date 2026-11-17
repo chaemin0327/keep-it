@@ -17,12 +17,14 @@ public class AuthController {
     private final AccountRepository accounts;
     private final PasswordEncoder encoder;
     private final EmailTokenService tokens;
+    private final kr.keepit.portfolio.profile.UserProfileRepository profiles;
     private final boolean verificationRequired;
-    AuthController(AccountRepository accounts,PasswordEncoder encoder,EmailTokenService tokens,
+    AuthController(AccountRepository accounts,PasswordEncoder encoder,EmailTokenService tokens,kr.keepit.portfolio.profile.UserProfileRepository profiles,
                    @Value("${keepit.auth.require-verification:false}") boolean verificationRequired) {
-        this.accounts=accounts;this.encoder=encoder;this.tokens=tokens;this.verificationRequired=verificationRequired;
+        this.accounts=accounts;this.encoder=encoder;this.tokens=tokens;this.profiles=profiles;this.verificationRequired=verificationRequired;
     }
-    record Registration(@NotBlank @Email @Size(max=160) String email,@NotBlank @Size(min=10,max=72) String password) {}
+    record Registration(@NotBlank @Email @Size(max=160) String email,@NotBlank @Size(min=10,max=72) String password,
+                        @Size(max=50) String name, @Size(max=160) String headline) {}
     record EmailRequest(@NotBlank @Email @Size(max=160) String email) {}
     record TokenRequest(@NotBlank String token) {}
     record ResetRequest(@NotBlank String token,@NotBlank @Size(min=10,max=72) String password) {}
@@ -30,11 +32,13 @@ public class AuthController {
     @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED) @Transactional
     java.util.Map<String,Boolean> register(@Valid @RequestBody Registration input) {
         validatePassword(input.password());
+        if(input.name()!=null && input.name().isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"이름을 입력해주세요.");
         String email=normalize(input.email());
         if(accounts.existsById(email)) throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 가입한 이메일이에요.");
         try {
             Account account=new Account(email,encoder.encode(input.password())); account.verified=!verificationRequired;
             accounts.saveAndFlush(account);
+            if(input.name()!=null) profiles.save(kr.keepit.portfolio.profile.UserProfile.forRegistration(email,input.name(),input.headline()));
             if(verificationRequired) tokens.send(email,"VERIFY");
         } catch(org.springframework.dao.DataIntegrityViolationException e) {throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 가입한 이메일이에요.");}
         return java.util.Map.of("verificationRequired",verificationRequired);
